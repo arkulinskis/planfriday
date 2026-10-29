@@ -26,6 +26,12 @@ Built on [Anvil](https://anvil.works).
   - **The menu:** sections with how many are wanted (filled tick boxes), a meter ("6 of 10 filled", "Still wanted: 1 × soup"),
     dishes on dotted price lines (who, serves, tags: veg, vegan, GF, dairy-free, has nuts, spicy), "I'll bring one" with a
     dice that suggests a dish. Every party also has "Something else".
+  - **Weather check:** if the host gave a town, every slot shows a forecast chip (icon, temperature, chance of rain), and a
+    "Weather check" sticker covers the locked-in day (or the leading one) with wind, high/low and advice in script
+    ("Rain plan needed: everyone into the kitchen!", "Perfect patio weather", "Proper soup weather"). Outdoor parties
+    get a "Driest" badge on the slot least likely to rain. °C/°F switch (remembered). Forecasts come from
+    [Open-Meteo](https://open-meteo.com/) (free, no key) through our server and are cached for an hour; the forecast reaches
+    about 16 days ahead. Also on home cards and the order sheet.
   - **Letters to the host:** a guestbook.
   - **The guest list** (coming / maybe / can't, +1s, diets, seat meter) and **At the table** (diet counts, plus warnings such as a
     nut allergy next to a dish with nuts, or vegetarians without veggie dishes).
@@ -42,7 +48,8 @@ Built on [Anvil](https://anvil.works).
   and three daily picks from the catalogue.
 - **Host a party** (`#new`, `#new/<idea>`), an order blank in four numbered sections: name and picture (13 drawings), the slots
   (this weekend or next, Fri dinner/late, Sat brunch→late, Sun brunch→dinner), the menu (sections + how many, presets) and
-  the particulars (potluck / host cooks / bring your own, place, seat limit, note). On creation the page opens with the link
+  the particulars (potluck / host cooks / bring your own, place, seat limit, note, the town for the weather check with a
+  "Check" button, and "It's outdoors", ticked for outdoor catalogue ideas). On creation the page opens with the link
   ready to copy, plus confetti.
 - **Host tools** on the party page: lock in the day (pick a slot and a start time, confetti), change the day, close / reopen RSVPs,
   edit (`#edit/<id>`), order sheet, run it again (a copy moved to next weekend), delete, remove a guest, remove any dish or note.
@@ -83,7 +90,7 @@ web/            the interface: core.js/core.css (shared engine + catalogue desig
                 pages/_shared.html = window.PF: pictures, catalogue ideas, weekend dates, dish ideas, sharing, calendar, confetti
 client_code/    Main.py (the only Anvil form: bridge to the server, sign-in), legal.py
 server_code/    common.py, Accounts.py, Feedback.py, Admin.py, DemoData.py, legal_server.py,
-                Parties.py (hosts), Guests.py (the party link)
+                Parties.py (hosts), Guests.py (the party link), Weather.py (Open-Meteo look-up + forecast cache)
 assets/         icon.svg + generated PNG icons (served at _/theme/<name>)
 tools/          sync_to_anvil.py (settings + table schema), deploy.py, check.py, preview/ (dev server, UI tests, screenshots), testing/
 ```

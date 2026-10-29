@@ -16,7 +16,7 @@ import anvil.server
 from anvil.tables import app_tables
 
 from . import common as C
-from . import DemoData
+from . import DemoData, Weather
 
 PARTS = ("brunch", "lunch", "afternoon", "dinner", "late")
 RSVPS = ("yes", "maybe", "no")
@@ -111,6 +111,7 @@ def party_dict(p):
             "cover": p["cover"] or "classic", "cap": p["cap"], "slots": list(p["slots"] or []), "chosen": p["chosen"],
             "chosen_time": p["chosen_time"], "categories": categories(p), "wanted": dict(p["wanted"] or {}),
             "status": p["status"] or "open", "host_name": C.name_of(p["host"]), "demo": bool(p["is_demo"]),
+            "outdoors": bool(p["outdoors"]), "wx_place": p["wx_place"],
             "created": C.iso(p["created"]), "updated": C.iso(p["updated"])}
 
 
@@ -149,6 +150,7 @@ def view(p, g):
                       "created": C.iso(c["created"]), "mine": g is not None and c["guest"] == g,
                       "can_remove": (g is not None and c["guest"] == g) or is_host or admin} for c in comments],
         "stats": stats(p, guests, dishes),
+        "weather": Weather.for_party(p),
     }
 
 

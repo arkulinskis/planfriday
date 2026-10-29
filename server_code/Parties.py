@@ -13,7 +13,7 @@ import anvil.server
 from anvil.tables import app_tables
 
 from . import common as C
-from . import DemoData, Guests
+from . import DemoData, Guests, Weather
 
 STYLES = ("potluck", "hostcooks", "byob")
 COVERS = ("classic", "soup", "pancakes", "dumplings", "tacos", "fondue", "pizza", "roast", "salad", "pie", "wine", "bbq", "cake")
@@ -80,7 +80,27 @@ def _read(data):
             "location": C.text(data.get("location"), 120),
             "style": data.get("style") if data.get("style") in STYLES else "potluck",
             "cover": data.get("cover") if data.get("cover") in COVERS else "classic",
-            "cap": cap, "slots": slots, "categories": cats, "wanted": wanted}, None
+            "cap": cap, "slots": slots, "categories": cats, "wanted": wanted, "outdoors": bool(data.get("outdoors")),
+            "wx_query": C.text(data.get("wx_place"), 80)}, None
+
+
+def _place(f, p=None):
+    """Turn the form's town into wx_place/lat/lon (kept as is when unchanged). Returns (fields, error, note)."""
+    q = f.pop("wx_query")
+    if not q:
+        f.update(wx_place=None, wx_lat=None, wx_lon=None)
+        return f, None, None
+    if p is not None and p["wx_place"] and q == p["wx_place"]:
+        return f, None, None
+    try:
+        g = Weather.geocode(q)
+    except Weather.Unavailable:
+        f.update(wx_place=None, wx_lat=None, wx_lon=None)
+        return f, None, "Saved, but the weather service didn't answer, so there's no weather check yet. Try the town again later."
+    if g is None:
+        return None, "We couldn't find \"%s\" for the weather check. Try just the town name, or leave it empty." % q, None
+    f.update(wx_place=g["place"], wx_lat=g["lat"], wx_lon=g["lon"])
+    return f, None, None
 
 
 def _new_token():
@@ -135,7 +155,15 @@ def summary(p, me):
             "my_rsvp": mine[0]["rsvp"] if mine else None, "demo": bool(p["is_demo"]),
             "yes": s["yes"], "maybe": s["maybe"], "heads": s["heads"], "best": s["best"], "filled": s["filled"],
             "wanted_total": s["wanted_total"], "dishes": s["dishes"], "guests": len(guests),
-            "updated": C.iso(p["updated"])}
+            "updated": C.iso(p["updated"]),
+            "wx": _card_weather(p, p["chosen"] or s["best"])}
+
+
+def _card_weather(p, key):
+    """The cached forecast for one slot (no fetching: the home page stays quick)."""
+    if not key or p["wx_lat"] is None:
+        return None
+    return Weather.slot_forecast(p, key, Weather._cache(p, refresh=False))
 
 
 # ----------------------------------------------------------------------------------------------- callables
@@ -167,6 +195,7 @@ def get_party_form(party_id):
     d = Guests.party_dict(p)
     d["categories"] = [c for c in d["categories"] if c != Guests.EXTRA]
     d["answers"] = len([g for g in app_tables.guests.search(party=p) if g["avail"]])
+    d["outdoors"] = bool(p["outdoors"])
     return C.ok(party=d)
 
 
@@ -180,10 +209,13 @@ def create_party(data):
         return C.fail("That's a lot of parties in one hour! Please try again later.")
     if len(app_tables.parties.search(host=me)) >= MAX_PARTIES:
         return C.fail("You have %d parties already. Delete a few old ones first." % MAX_PARTIES)
+    f, problem, note = _place(f)
+    if problem:
+        return C.fail(problem)
     p = app_tables.parties.add_row(host=me, token=_new_token(), catalog_no=_catalog_no(), status="open",
                                    chosen=None, chosen_time=None, created=C.now(), updated=C.now(), is_demo=False, **f)
     _host_row(p)
-    return C.ok(id=p.get_id(), token=p["token"])
+    return C.ok(id=p.get_id(), token=p["token"], note=note)
 
 
 @anvil.server.callable(require_user=True)
@@ -194,10 +226,13 @@ def update_party(party_id, data):
     f, problem = _read(data)
     if problem:
         return C.fail(problem)
+    f, problem, note = _place(f, p)
+    if problem:
+        return C.fail(problem)
     if p["chosen"] and p["chosen"] not in f["slots"]:
         f["chosen"], f["chosen_time"] = None, None
     p.update(updated=C.now(), **f)
-    return C.ok(id=p.get_id(), token=p["token"])
+    return C.ok(id=p.get_id(), token=p["token"], note=note)
 
 
 @anvil.server.callable(require_user=True)
@@ -265,6 +300,7 @@ def duplicate_party(party_id):
                                    title=src["title"], blurb=src["blurb"], location=src["location"], style=src["style"],
                                    cover=src["cover"], cap=src["cap"], slots=moved, chosen=None, chosen_time=None,
                                    categories=list(src["categories"] or []), wanted=dict(src["wanted"] or {}),
+                                   wx_place=src["wx_place"], wx_lat=src["wx_lat"], wx_lon=src["wx_lon"], outdoors=src["outdoors"],
                                    created=C.now(), updated=C.now(), is_demo=False)
     _host_row(p)
     return C.ok(id=p.get_id(), token=p["token"])

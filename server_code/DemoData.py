@@ -14,6 +14,8 @@ from anvil.tables import app_tables
 from . import common as C
 
 SAMPLE_TOKEN = "sample"
+# The sample parties' weather check is for Montréal (stored directly, so loading the demo needs no look-up).
+DEMO_PLACE = ("Montréal, Quebec, Canada", 45.5088, -73.5878)
 DEMO_HOSTS = [
     ("Maya Chen", "maya.demo@example.com"),
     ("Theo Martin", "theo.demo@example.com"),
@@ -57,7 +59,7 @@ DEMO_PARTIES = [
      "comments": [(0, 40, "Pancakes are on me. Forty of them, minimum."),
                   (4, 12, "Bringing my two kids. They will eat thirty of those forty.")]},
     {"token": "sample-dumplings", "host": 2, "catalog_no": "No. 57K 9031", "title": "Dumpling Folding Party", "cover": "dumplings",
-     "style": "potluck", "cap": 8, "location": "Ines's kitchen (big table, small oven)",
+     "style": "potluck", "cap": 8, "location": "Ines's kitchen and the back garden", "outdoors": True,
      "blurb": "I'll make the dough and a pork & cabbage filling. Bring a filling, a sauce or a side, and we fold together. Ugly dumplings welcome.",
      "slots": [(0, "late"), (1, "afternoon"), (1, "dinner")], "chosen": None,
      "menu": [("Fillings", 2), ("Dipping sauces", 2), ("Sides", 1), ("Drinks", 2), ("Dessert", 1)],
@@ -106,7 +108,8 @@ def load():
             host=hosts[d["host"]], token=d["token"], catalog_no=d["catalog_no"], title=d["title"], blurb=d["blurb"],
             location=d["location"], style=d["style"], cover=d["cover"], cap=d["cap"], slots=slots,
             chosen=slots[d["chosen"]] if d["chosen"] is not None else None, chosen_time=d.get("chosen_time"),
-            categories=[c for c, n in d["menu"]], wanted=wanted, status="open",
+            categories=[c for c, n in d["menu"]], wanted=wanted, status="open", outdoors=bool(d.get("outdoors")),
+            wx_place=DEMO_PLACE[0], wx_lat=DEMO_PLACE[1], wx_lon=DEMO_PLACE[2],
             created=C.now() - dt.timedelta(days=2), updated=C.now() - dt.timedelta(hours=3), is_demo=True)
         guests = []
         for i, (name, rsvp, plus, diet, answers) in enumerate(d["guests"]):

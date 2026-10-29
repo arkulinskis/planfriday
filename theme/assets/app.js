@@ -629,7 +629,7 @@
     if (wd === 6) return { big: 'It\'s Saturday', small: 'Tonight still counts. So does tomorrow.', burst: 'Tonight?', hot: true };
     if (wd === 0) return { big: 'It\'s Sunday', small: 'One more feast, or line up next weekend.', burst: 'Lunch?', hot: true };
     var n = 5 - wd;
-    return { big: n === 1 ? 'Friday is tomorrow' : n + ' days to Friday', small: 'Get a head start: send the link now, decide on Friday.', burst: n === 1 ? 'Tomorrow' : n + ' days', hot: false };
+    return { big: n === 1 ? 'Friday is tomorrow' : n + ' days to Friday', small: 'Get a head start: send the link now, decide on Friday.', burst: n === 1 ? '1 day' : n + ' days', hot: false };
   }
 
   /* ------------------------------------------------------------------ diets, tags, dish ideas */
@@ -712,6 +712,61 @@
     setTimeout(function () { box.remove(); }, 3800);
   }
 
+  /* ------------------------------------------------------------------ weather check (forecasts come from the server: Weather.py) */
+  var CLOUD = 'M9 31h22a8 8 0 0 0 0-16 10 10 0 0 0-19 3 6.5 6.5 0 0 0-3 13z', CLOUD_UP = 'M9 24h22a8 8 0 0 0 0-16 10 10 0 0 0-19 3 6.5 6.5 0 0 0-3 13z';
+  var WX_ART = {
+    sun: '<circle class="y" cx="20" cy="20" r="8"/><path d="M20 4v5M20 31v5M4 20h5M31 20h5M8.7 8.7l3.5 3.5M27.8 27.8l3.5 3.5M8.7 31.3l3.5-3.5M27.8 12.2l3.5-3.5"/>',
+    moon: '<path class="y" d="M25 6a14 14 0 1 0 9 22A12 12 0 0 1 25 6z"/><circle class="k ns" cx="31" cy="10" r="1.3"/><circle class="k ns" cx="35" cy="17" r="1"/>',
+    partly: '<circle class="y" cx="15" cy="15" r="7"/><path d="M15 3v3M3 15h3M6.5 6.5l2 2M23.5 6.5l-2 2"/><path class="p" d="M12 34h18a7 7 0 0 0 0-14 9 9 0 0 0-17 3 6 6 0 0 0-1 11z"/>',
+    cloud: '<path class="p" d="' + CLOUD + '"/>',
+    fog: '<path class="p" d="M9 25h22a8 8 0 0 0 0-16 10 10 0 0 0-19 3 6.5 6.5 0 0 0-3 13z"/><path d="M5 30h30M9 35h22"/>',
+    drizzle: '<path class="p" d="' + CLOUD_UP + '"/><circle class="n" cx="13" cy="31" r="1.8"/><circle class="n" cx="21" cy="34" r="1.8"/><circle class="n" cx="29" cy="31" r="1.8"/>',
+    rain: '<path class="p" d="' + CLOUD_UP + '"/><path d="M14 28l-2 7M21 28l-2 7M28 28l-2 7" style="stroke:var(--c-navy);stroke-width:3"/>',
+    snow: '<path class="p" d="' + CLOUD_UP + '"/><path d="M13 29v7M9.5 32.5h7M27 29v7M23.5 32.5h7"/>',
+    storm: '<path class="n" d="' + CLOUD_UP + '"/><path class="y" d="M22 22l-6 9h5l-3 7 9-11h-5l3-5z"/>'
+  };
+  function wxKind(code, hour) {
+    var night = hour != null && (hour < 7 || hour >= 19);
+    if (code === 0 || code === 1) return [night ? 'moon' : 'sun', code === 0 ? (night ? 'Clear night' : 'Sunny') : 'Mostly clear'];
+    if (code === 2) return ['partly', 'Partly cloudy'];
+    if (code === 3) return ['cloud', 'Overcast'];
+    if (code === 45 || code === 48) return ['fog', 'Foggy'];
+    if (code >= 51 && code <= 57) return ['drizzle', 'Drizzle'];
+    if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return ['rain', code >= 80 ? 'Showers' : 'Rain'];
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return ['snow', 'Snow'];
+    if (code >= 95) return ['storm', 'Thunderstorms'];
+    return ['cloud', 'Cloudy'];
+  }
+  function wxIcon(w) {
+    var k = wxKind(w.code, w.hour);
+    return '<svg class="pf-art pf-wxi" viewBox="0 0 40 40" role="img" aria-label="' + esc(k[1]) + '">' + WX_ART[k[0]] + '</svg>';
+  }
+  function units() { return UI.store.get('units', 'C'); }
+  function temp(c) {
+    if (c == null) return '';
+    return units() === 'F' ? Math.round(c * 9 / 5 + 32) + '°F' : Math.round(c) + '°C';
+  }
+  function wind(kmh) { return units() === 'F' ? Math.round(kmh / 1.609) + ' mph' : Math.round(kmh) + ' km/h'; }
+  function advice(w, outdoors) {
+    var k = wxKind(w.code, w.hour)[0], t = w.temp, rain = w.rain || 0;
+    if (k === 'storm') return outdoors ? 'Thunder on the way: move it indoors.' : 'Stormy outside, cosy inside.';
+    if (k === 'snow') return outdoors ? 'Snow! Hot drinks and a quick retreat indoors.' : 'Snow boots by the door.';
+    if (k === 'rain' || rain >= 60) return outdoors ? 'Rain plan needed: everyone into the kitchen!' : 'Umbrellas by the door.';
+    if (rain >= 30) return outdoors ? 'Might sprinkle. Have a plan B.' : 'Bring a brolly, just in case.';
+    if (outdoors && w.wind >= 35) return 'Windy: weigh down the napkins.';
+    if (t < 5) return outdoors ? 'Too cold for the patio. Soup, anyone?' : 'Proper soup weather.';
+    if (t < 12) return outdoors ? 'Sweater weather: bring a layer.' : 'Crisp out, cosy in.';
+    if (t >= 30) return 'A scorcher! Bring ice. Lots of ice.';
+    if (t >= 18 && (k === 'sun' || k === 'partly' || k === 'moon')) return outdoors ? 'Perfect patio weather.' : 'Lovely for the walk over.';
+    return outdoors ? 'Looks fine for outside.' : 'Nothing to worry about.';
+  }
+  function wxChip(w) {
+    if (!w) return '';
+    var k = wxKind(w.code, w.hour);
+    return '<span class="pf-wx' + ((w.rain || 0) >= 50 ? ' wet' : (w.rain || 0) <= 10 ? ' dry' : '') + '" title="' + esc(k[1] + ', ' + temp(w.temp) + ', ' + (w.rain || 0) + '% chance of rain') + '">' +
+      wxIcon(w) + esc(temp(w.temp)) + ' · ' + (w.rain || 0) + '%</span>';
+  }
+
   /* ------------------------------------------------------------------ parties seen on this device (guests have no account) */
   function remember(p) {
     var list = UI.store.get('visited', []).filter(function (x) { return x.token !== p.token; });
@@ -733,6 +788,7 @@
       '<h3>' + esc(s.title) + '</h3><div>' + status + '</div>' +
       '<div class="pf-leader small"><span class="a">' + UI.plural(s.heads, 'seat') + ' taken</span><span class="dots"></span><span class="b">' + s.maybe + ' maybe</span></div>' +
       '<div class="pf-leader small"><span class="a">Menu</span><span class="dots"></span><span class="b">' + s.filled + ' of ' + s.wanted_total + ' filled</span></div>' +
+      (s.wx ? '<div class="pf-leader small"><span class="a">Weather</span><span class="dots"></span><span class="b">' + wxChip(s.wx) + '</span></div>' : '') +
       (s.status === 'closed' ? '<span class="ui-badge">RSVPs closed</span>' : '') + '</div></a>';
   }
 
@@ -745,6 +801,7 @@
     DIETS: DIETS, DISH_TAGS: DISH_TAGS, suggest: suggest, dietLabel: dietLabel, tagLabel: tagLabel,
     partyUrl: partyUrl, inviteText: inviteText, copy: copy, downloadIcs: downloadIcs, googleCal: googleCal, confetti: confetti,
     remember: remember, forget: forget, partyCard: partyCard,
+    wxKind: wxKind, wxIcon: wxIcon, wxChip: wxChip, temp: temp, wind: wind, units: units, advice: advice,
     effort: function (n) { return '★★★'.slice(0, n) + '☆☆☆'.slice(0, 3 - n); }
   };
 })();
@@ -1038,7 +1095,7 @@
             ['Lock in the day', 'The best day rises to the top. Lock it in, everyone adds it to their calendar, and the menu fills itself.', 'Friday night']],
     hosts: ['A party page with your picture, your note, your address', 'Slots across Friday, Saturday and Sunday (this weekend or next)',
             'A menu by section (soup, mains, dessert, drinks...) with how many of each you want', 'Lock in the best day, close RSVPs, set a seat limit',
-            'A printable order sheet for the fridge, and "run it again" for next week'],
+            'A weather check for every slot, a printable order sheet, and "run it again" for next week'],
     guests: ['Open the link. No app, no account, no password', 'Put your name down and RSVP, with a +1 or two',
              'Tick ✓ free, ~ maybe or ✕ can\'t for each day', 'Say what you\'re bringing, or let the dice suggest something',
              'Note your diet, leave a note for the host, add the day to your calendar'],
@@ -1047,9 +1104,10 @@
                ['heart', 'Diets, sorted', 'Guests note allergies and diets. Dishes carry tags, and a nut allergy next to walnuts gets flagged.'],
                ['mail', 'Letters to the host', 'A guestbook on every party, for questions, jokes, parking and "running 10 minutes late".'],
                ['print', 'The order sheet', 'Who brings what, on one printable page with tick boxes. Stick it on the fridge.'],
-               ['refresh', 'Run it again', 'Did Soup Night work? Copy it to next weekend in one tap, menu and all.']],
+               ['sun', 'Weather check', 'A forecast for every slot, with advice: "perfect patio weather" or "rain plan needed". Outdoor parties get the driest day flagged.']],
     faq: [['Do my guests need an account?', 'No. They open your link, type their name, and they\'re on the list. Their browser remembers them. Only the host needs an account (free), so every party has an owner.'],
           ['Can it really be last minute?', 'That\'s the whole idea. Make the party on Friday morning, send the link at lunch, lock in Saturday dinner by the evening. Your friends see changes right away.'],
+          ['Where does the weather come from?', 'From Open-Meteo, a free weather service. Our server asks it for the forecast in the town the host typed, so your browser never contacts it, and the forecast is refreshed every hour.'],
           ['What if nobody is free?', 'Edit the party and add more slots, or tick next weekend too. Answers people already gave are kept.'],
           ['Who can see my party?', 'Anyone with the link. It\'s long and random, so nobody finds it by chance. Guests see first names, RSVPs, dishes and notes, never emails. You can close RSVPs, remove someone, or delete the party at any time.'],
           ['Is it free?', 'Yes. No ads, no fees, nothing to install. It works in any browser, and you can add it to your phone\'s home screen.']],
@@ -1182,10 +1240,31 @@
         '<h1>' + esc(p.title) + '</h1>' +
         '<div class="pt-meta"><span>' + UI.icon('user') + 'Hosted by ' + esc(p.host_name) + '</span>' +
           (p.location ? '<span>' + UI.icon('pin') + esc(p.location) + '</span>' : '') +
-          '<span>' + UI.icon('users') + UI.plural(st.heads, 'seat') + ' taken' + (p.cap ? ' of ' + p.cap : '') + '</span></div>' +
-        (p.blurb ? '<p class="pt-blurb">' + esc(p.blurb) + '</p>' : '') + whenBox +
+          '<span>' + UI.icon('users') + UI.plural(st.heads, 'seat') + ' taken' + (p.cap ? ' of ' + p.cap : '') + '</span>' +
+          (p.outdoors ? '<span>' + UI.icon('sun') + 'Outdoors</span>' : '') + '</div>' +
+        (p.blurb ? '<p class="pt-blurb">' + esc(p.blurb) + '</p>' : '') + whenBox + wxBox(p, st) +
         (V.is_host && past && !p.demo ? '<div class="ui-note" style="margin-top:12px">This weekend has been and gone. <a href="#" data-dup>Run it again next weekend →</a></div>' : '') +
         '</div></section>';
+    }
+
+    /* The weather check: for the locked-in day, else the leading one, else the first slot with a forecast. */
+    function wxBox(p, st) {
+      var w = V.weather;
+      if (!w) return V.is_host && !p.demo ? '<p class="pt-wxnote muted">' + UI.icon('sun') + ' Add a town in <a href="#edit/' + esc(p.id) + '" data-go="edit/' + esc(p.id) + '">Edit</a> to get a weather check for each day.</p>' : '';
+      var key = p.chosen || st.best, f = key && w.slots[key];
+      if (!f) { key = p.slots.filter(function (k) { return w.slots[k] && !PF.isPast(k); })[0]; f = key && w.slots[key]; }
+      var town = (w.place || '').split(',')[0];
+      var credit = '<p class="pt-credit">Forecast by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a>' +
+        (w.updated ? ' · updated ' + esc(UI.ago(w.updated)) : '') + (w.ok ? '' : ' · the weather service is slow to answer, so this may be a little old') + '</p>';
+      if (!f) return '<div class="pt-wx"><div class="grow"><div class="pf-label">Weather check · ' + esc(town) + '</div>' +
+        '<div>' + (p.slots.every(PF.isPast) ? 'This weekend has been and gone.' : 'The forecast opens about two weeks ahead. Check back closer to the day.') + '</div></div></div>' + credit;
+      var kind = PF.wxKind(f.code, f.hour), u = PF.units();
+      return '<div class="pt-wx"><div class="ic">' + PF.wxIcon(f) + '</div><div class="grow"><div class="pf-label">Weather check · ' + esc(PF.slotLabel(key)) + ' · ' + esc(town) + '</div>' +
+        '<div class="big">' + esc(kind[1]) + ', ' + esc(PF.temp(f.temp)) + '</div>' +
+        '<div class="small">' + (f.rain || 0) + '% chance of rain · wind ' + esc(PF.wind(f.wind)) + (f.tmax != null ? ' · high ' + esc(PF.temp(f.tmax)) + ', low ' + esc(PF.temp(f.tmin)) : '') + '</div>' +
+        '<div class="pf-script advice">' + esc(PF.advice(f, w.outdoors)) + '</div></div>' +
+        '<div class="ui-seg" role="group" aria-label="Units"><button type="button" data-units="C" class="' + (u === 'C' ? 'on' : '') + '">°C</button>' +
+        '<button type="button" data-units="F" class="' + (u === 'F' ? 'on' : '') + '">°F</button></div></div>' + credit;
     }
 
     function shareBox(p, isHost) {
@@ -1245,6 +1324,9 @@
 
     function when(p, st, me, past) {
       var mineOk = me && me.rsvp !== 'no' && !p.chosen && !(p.status === 'closed' && !V.is_host);
+      var W = V.weather ? V.weather.slots : {}, driest = null;
+      if (V.weather && V.weather.outdoors) p.slots.forEach(function (k) { if (W[k] && !PF.isPast(k) && (driest === null || W[k].rain < W[driest].rain)) driest = k; });
+      if (driest && p.slots.filter(function (k) { return W[k]; }).length < 2) driest = null;
       var rows = p.slots.map(function (k) {
         var s = PF.slot(k), t = st.slots[k] || { yes: [], maybe: [], no: [] }, isPast = PF.isPast(k);
         var chosen = p.chosen === k, best = !p.chosen && st.best === k;
@@ -1254,6 +1336,7 @@
           '<div class="day"><b>' + esc(PF.day(s.d, 'short')) + '</b><span>' + esc(PF.shortDate(s.d)) + '</span></div>' +
           '<div class="who"><div class="t">' + esc(PF.partLabel(s.part)) + ' <small>· ' + esc(chosen && p.chosen_time ? PF.timeLabel(p.chosen_time) : PF.timeLabel(PF.PARTS[s.part].time)) +
             ' · ' + t.yes.length + ' free' + (t.maybe.length ? ', ' + t.maybe.length + ' maybe' : '') + (isPast ? ' · past' : '') + '</small></div>' +
+            (W[k] || driest === k ? '<div class="wxrow">' + PF.wxChip(W[k]) + (driest === k ? '<span class="ui-badge warn">' + UI.icon('sun') + 'Driest</span>' : '') + '</div>' : '') +
             (t.yes.length || t.maybe.length ? '<div class="pf-chips">' + t.yes.map(function (id) { return chip(id, ''); }).join('') + t.maybe.map(function (id) { return chip(id, 'maybe'); }).join('') + '</div>' : '') + '</div>' +
           '<div class="mine">' + (mineOk && !isPast ? ANS.map(function (a) {
             return '<button type="button" class="pt-ans' + (mine === a[0] ? ' on' : '') + '" data-ans="' + a[0] + '" data-slot="' + esc(k) + '" title="' + a[2] + '" aria-label="' + a[2] + ' for ' + esc(PF.slotLabel(k)) + '" aria-pressed="' + (mine === a[0]) + '">' + a[1] + '</button>';
@@ -1439,6 +1522,7 @@
       if (t.hasAttribute('data-copy')) { PF.copy(PF.partyUrl(V.party.token)); var box = view.querySelector('[data-linkbox]'); if (box) box.select(); return; }
       if (t.hasAttribute('data-share')) { navigator.share({ title: V.party.title, text: PF.inviteText(V.party).replace(PF.partyUrl(V.party.token), '').trim(), url: PF.partyUrl(V.party.token) }).catch(function () {}); return; }
       if (t.hasAttribute('data-ics')) { PF.downloadIcs(V.party); return; }
+      if (t.hasAttribute('data-units')) { UI.store.set('units', a('data-units')); draw(); return; }
       if (t.hasAttribute('data-lock')) { lock(a('data-lock')); return; }
       if (t.hasAttribute('data-unlock')) {
         UI.confirm({ title: 'Change the day?', text: 'The day is unlocked and guests can answer again.', ok: 'Unlock' }).then(function (y) { if (y) host('lock_slot', null, null); }); return;
@@ -1506,6 +1590,7 @@
 
   function fromIdea(i) {
     var st = { title: i.key === 'classic' ? '' : i.name, blurb: '', location: '', style: i.style, cover: i.cover, cap: '', idea: i.key,
+      wx_place: UI.store.get('town', ''), outdoors: i.tags.indexOf('outdoor') >= 0,
       menu: i.menu.map(function (m) { return { name: m[0], wanted: m[1] }; }), slots: {} };
     var week = 0;
     var keys = function (w) { return i.slots.map(function (s) { return PF.slotKey(PF.friday(w), s[0], s[1]); }).filter(function (k) { return !PF.isPast(k); }); };
@@ -1552,6 +1637,11 @@
           }).join('') + '</div>' +
           '<div class="pl-two"><label class="ui-field"><span>Where <em>(optional)</em></span><input type="text" name="location" maxlength="120" placeholder="My place, 3rd floor" value="' + esc(st.location) + '"></label>' +
           '<label class="ui-field"><span>Seats at the table <em>(optional)</em></span><input type="number" name="cap" min="2" max="100" placeholder="No limit" value="' + esc(st.cap || '') + '"></label></div>' +
+          '<div class="pl-two"><div class="ui-field"><span>Town for the weather check <em>(optional)</em></span>' +
+            '<div class="ui-row" style="flex-wrap:nowrap"><input type="text" name="wx_place" maxlength="80" placeholder="Montréal" value="' + esc(st.wx_place || '') + '" style="flex:1">' +
+            '<button type="button" class="ui-btn sm" data-wxcheck>' + UI.icon('sun') + 'Check</button></div><p class="ui-hint" data-wxres>Just the town name. We show the forecast for each slot.</p></div>' +
+            '<label class="ui-check" style="align-self:center"><input type="checkbox" name="outdoors"' + (st.outdoors ? ' checked' : '') + '><span><b>It\'s outdoors</b> (garden, rooftop, park). ' +
+            'The weather check flags the driest day and plans for rain.</span></label></div>' +
           '<label class="ui-field"><span>A note for your guests <em>(optional)</em></span><textarea name="blurb" maxlength="1000" rows="3" placeholder="Come hungry. Bring a sweater, the garden gets cold.">' + esc(st.blurb) + '</textarea></label>') +
         '<div data-msg hidden></div>' +
         '<div class="pl-submit"><p>' + (editing ? 'Everyone with the link sees your changes.' : 'Next: you get one link to send to everyone.') + '</p>' +
@@ -1614,6 +1704,13 @@
       }
       if ((t = e.target.closest('[data-delcat]'))) { st.menu.splice(+t.closest('[data-row]').getAttribute('data-row'), 1); menu(); return; }
       if ((t = e.target.closest('[data-preset]'))) { addCat(t.getAttribute('data-preset')); return; }
+      if ((t = e.target.closest('[data-wxcheck]'))) {
+        var res = view.querySelector('[data-wxres]'), q = (st.wx_place || '').trim();
+        if (!q) { res.textContent = 'Type a town first.'; return; }
+        UI.busy(t, UI.api('weather_lookup', q)).then(function (r) { res.innerHTML = UI.icon('check') + ' Found: <b>' + esc(r.place) + '</b>'; },
+          function (err) { res.innerHTML = '<span style="color:var(--c-bad)">' + esc(err.message) + '</span>'; });
+        return;
+      }
       if (e.target.closest('[data-addcat]')) { var inp = view.querySelector('[data-newcat]'); addCat(inp.value); inp.value = ''; inp.focus(); }
     });
     view.addEventListener('keydown', function (e) {
@@ -1624,11 +1721,12 @@
       if (t.matches('[data-slot]')) { if (t.checked) st.slots[t.getAttribute('data-slot')] = true; else delete st.slots[t.getAttribute('data-slot')]; picked(); }
       if (t.name === 'cover') st.cover = t.value;
       if (t.name === 'style') st.style = t.value;
+      if (t.name === 'outdoors') st.outdoors = t.checked;
     });
     view.addEventListener('input', function (e) {
       var t = e.target;
       if (t.matches('[data-catname]')) st.menu[+t.closest('[data-row]').getAttribute('data-row')].name = t.value;
-      else if (['title', 'location', 'cap', 'blurb'].indexOf(t.name) >= 0) st[t.name] = t.value;
+      else if (['title', 'location', 'cap', 'blurb', 'wx_place'].indexOf(t.name) >= 0) st[t.name] = t.value;
     });
     view.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -1640,10 +1738,12 @@
       var wanted = {}, cats = [];
       st.menu.forEach(function (m) { if (m.name.trim()) { cats.push(m.name.trim()); wanted[m.name.trim()] = m.wanted; } });
       var data = { title: st.title, blurb: st.blurb, location: st.location, style: st.style, cover: st.cover, cap: st.cap ? +st.cap : null,
-        slots: slots, categories: cats, wanted: wanted };
+        slots: slots, categories: cats, wanted: wanted, wx_place: (st.wx_place || '').trim(), outdoors: !!st.outdoors };
       var call = editing ? UI.api('update_party', partyId, data) : UI.api('create_party', data);
       UI.busy(f.querySelector('[type=submit]'), call).then(function (r) {
         if (!editing) { UI.store.set('justMade', r.token); }
+        if (data.wx_place) UI.store.set('town', data.wx_place);
+        if (r.note) setTimeout(function () { UI.toast(r.note); }, 600);
         UI.toast(editing ? 'Saved. Your guests see the changes.' : 'Your party is in print! Now send the link.', 'ok');
         UI.go('p', r.token);
       }, function (err) { msg.className = 'ui-error'; msg.textContent = err.message; msg.hidden = false; });
@@ -1655,6 +1755,7 @@
         var p = r.party;
         answers = p.answers || 0;
         st = { title: p.title, blurb: p.blurb, location: p.location, style: p.style, cover: p.cover, cap: p.cap || '', token: p.token, catalog_no: p.catalog_no,
+          wx_place: p.wx_place || '', outdoors: !!p.outdoors,
           menu: p.categories.map(function (c) { return { name: c, wanted: p.wanted[c] == null ? 1 : p.wanted[c] }; }), slots: {} };
         p.slots.forEach(function (k) { st.slots[k] = true; });
         var w = p.slots.length ? Math.round((PF.friday(0, PF.slot(p.slots[0]).d) - PF.friday(0)) / WEEK) : 0;
@@ -1736,6 +1837,8 @@
           '<div class="pf-leader"><span class="a">Where</span><span class="dots"></span><span class="b">' + esc(p.location || 'Ask the host') + '</span></div>' +
           '<div class="pf-leader"><span class="a">Seats taken</span><span class="dots"></span><span class="b">' + st.heads + (p.cap ? ' of ' + p.cap : '') + '</span></div>' +
           '<div class="pf-leader"><span class="a">Maybe</span><span class="dots"></span><span class="b">' + maybe.length + '</span></div>' +
+          (V.weather && V.weather.slots[p.chosen || st.best] ? '<div class="pf-leader"><span class="a">Weather</span><span class="dots"></span><span class="b">' +
+            PF.wxChip(V.weather.slots[p.chosen || st.best]) + ' ' + esc(PF.advice(V.weather.slots[p.chosen || st.best], V.weather.outdoors)) + '</span></div>' : '') +
           Object.keys(st.diets).map(function (k) { return '<div class="pf-leader"><span class="a">' + esc(PF.dietLabel(k)) + '</span><span class="dots"></span><span class="b">' + st.diets[k] + '</span></div>'; }).join('') +
         '</div>' +
         cats.map(function (c) {
