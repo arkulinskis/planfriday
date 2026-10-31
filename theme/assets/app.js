@@ -441,6 +441,7 @@
         '<div class="ui-footer-links">' +
         '<a href="#landing" data-go="landing">About</a>' +
         '<a href="#catalogue" data-go="catalogue">The catalogue</a>' +
+        '<a href="https://prepsto.com/#f/s28bant" target="_blank" rel="noopener" data-prepsto-open>Suggest an idea</a>' +
         '<button type="button" data-feedback>Send feedback</button>' +
         '<button type="button" data-lk-open="overview">Privacy &amp; Terms</button>' +
         '</div><p class="pf-foot-fine">Satisfaction guaranteed or your weekend back. Prices good through Sunday. Dishes not included; ' +
