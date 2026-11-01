@@ -436,7 +436,7 @@ metadata:
   title: 'Plan Friday: plan a last-minute weekend dinner party'
 name: Plan Friday
 native_deps:
-  head_html: "<script src=\"_/theme/legal-kit.js?v=f6a0febb8b\"></script>\n<!-- seo:start (APP_MAKER/seo: edit seo/apps/planfriday.json\
+  head_html: "<script src=\"_/theme/legal-kit.js?v=e41b26e499\"></script>\n<!-- seo:start (APP_MAKER/seo: edit seo/apps/planfriday.json\
     \ and run seo.py, not here) -->\n<link rel=\"canonical\" href=\"https://planfriday.com/\">\n<meta name=\"robots\" content=\"\
     index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1\">\n<meta name=\"keywords\" content=\"dinner\
     \ party planner, potluck sign up, weekend plans with friends, party RSVP link, what to bring list, potluck organizer,\
