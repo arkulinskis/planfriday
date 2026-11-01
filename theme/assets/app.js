@@ -1071,7 +1071,8 @@
 (function () {
   var COPY = {
     eyebrow: 'The Weekend Catalogue · Friday Edition',
-    title: 'Plan it on Friday. <em>Feast</em> on the <span class="pf-script">weekend.</span>',
+    title: 'Plan it on Friday. <em>Feast</em>&nbsp;on',
+    ideas: [['soup', 'soup night.', 'Soup Night'], ['tacos', 'taco Saturday.', 'Taco Saturday'], ['roast', 'a Sunday roast.', 'Sunday Roast'], ['pancakes', 'pancake brunch.', 'Pancake Brunch']],
     lead: 'Plan Friday is the quickest way to throw a last-minute dinner party. Make a party page, send one link, and your friends say which day suits them and what they\'re bringing: the soup, the salad, the dessert. No group-chat chaos, and no accounts for guests.',
     cta: 'Host a party, it\'s free',
     proof: ['Guests need no account', 'Ready in two minutes', 'Made for phones'],
@@ -1102,12 +1103,12 @@
     bandLead: 'Start the party page now and you\'ll have a plan by tonight.'
   };
 
-  function heroArt() {
+  // The cover dish changes in step with the rolling headline (same 12 s loop)
+  function heroArt(C) {
     var sat = PF.addDays(PF.friday(0), 1);
-    return '<div class="lp-art" aria-hidden="true"><div class="lp-cover"><div class="mast"><b>The Weekend Catalogue</b><span class="pf-no">No. 1</span></div>' +
-      '<div class="scene"><div>' + PF.art('wine') + '</div><div>' + PF.art('soup') + '</div><div>' + PF.art('pie') + '</div></div>' +
-      '<div class="lines"><span>Soups · Pies · Wines</span><span>Friday Edition</span></div>' +
-      '<div class="pf-burst red"><span><b>Free!</b>this week</span></div></div>' +
+    return '<div class="lp-plate" aria-hidden="true">' +
+      C.ideas.map(function (d) { return '<div class="lp-dish"><small>' + UI.esc(d[2]) + '</small>' + PF.art(d[0]) + '</div>'; }).join('') +
+      '<div class="pf-burst red"><span><b>Free!</b>this week</span></div>' +
       '<div class="lp-slip"><div class="pf-label">Order slip · Soup Night</div>' +
       '<div class="rowx"><b>' + UI.esc(PF.day(sat, 'short')) + ' · Dinner</b><span class="ok">✓ 5 free</span></div>' +
       '<div class="rowx"><span>Tomato soup</span><span class="muted small">Maya</span></div>' +
@@ -1121,11 +1122,16 @@
         '<a class="ui-btn lg" href="#p/sample" data-go="p/sample">See a sample party</a>';
     var device = UI.store.get('visited', []).filter(function (v) { return v.token.indexOf('sample') !== 0; });
     view.innerHTML =
-      '<section class="lp-hero"><div class="ui-wrap"><div>' +
-        '<div class="eyebrow">' + esc(C.eyebrow) + '</div><h1>' + C.title + '</h1><p class="lp-lead">' + esc(C.lead) + '</p>' +
+      '<section class="lp-hero"><div class="ui-wrap"><div class="lp-cover">' +
+        '<div class="mast"><b>The Weekend Catalogue</b><span>No. 1 · Friday Edition</span><span>Price: free</span></div>' +
+        '<div class="body"><div>' +
+        '<h1>' + C.title + ' <span class="lp-roll" aria-hidden="true">' + C.ideas.concat([C.ideas[0]]).map(function (d) { return '<span class="pf-script">' + esc(d[1]) + '</span>'; }).join('') + '</span>' +
+        '<span class="lp-sr">the weekend.</span></h1><p class="lp-lead">' + esc(C.lead) + '</p>' +
         '<div class="lp-cta">' + primary + '</div>' +
         '<div class="lp-proof">' + C.proof.map(function (p) { return '<span>' + UI.icon('check') + esc(p) + '</span>'; }).join('') + '</div>' +
-      '</div>' + heroArt() + '</div></section>' +
+        '</div>' + heroArt(C) + '</div>' +
+        '<div class="foot"><span>Soups · Tacos · Roasts · Brunch</span><span>Order by Friday · Feast by Saturday</span></div>' +
+      '</div></div></section>' +
       (device.length && !me ? '<section class="lp-section" style="padding-top:0"><div class="ui-wrap"><div class="pf-coupon"><span class="pf-scissors">' + UI.icon('scissors') + '</span>' +
         '<div class="pf-label" style="text-align:center;margin-bottom:10px">Back for your party? Opened on this device</div><div class="lp-device">' +
         device.map(function (v) { return '<a class="ui-btn" href="#p/' + esc(v.token) + '" data-go="p/' + esc(v.token) + '">' + UI.icon('ticket') + esc(v.title) + '</a>'; }).join('') + '</div></div></div></section>' : '') +
