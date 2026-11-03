@@ -22,6 +22,45 @@ PARTS = ("brunch", "lunch", "afternoon", "dinner", "late")
 RSVPS = ("yes", "maybe", "no")
 DIETS = ("veg", "vegan", "gf", "df", "nutfree", "halal")
 TAGS = ("veg", "vegan", "gf", "df", "nuts", "spicy")
+
+# Allergy safety: what a dish's own words say beats the tags someone ticked. "Has nuts" is added whenever a nut word
+# appears; a gluten-free / dairy-free / vegan / veg claim the words contradict is dropped (unless the words say
+# "gluten-free", "vegan cheese" and so on). Keep NUT_WORDS in step with PF.NUT_WORDS in web/pages/_shared.html.
+NUT_WORDS = (r"almond|walnut|pecan|cashew|hazelnut|pistachio|peanut|pine ?nut|macadamia|brazil nut|pesto|praline|marzipan|"
+             r"frangipane|nutella|satay|baklava|nougat|gianduja|amaretti|romesco|dukkah|\bnuts?\b|\bnutty\b")
+_NUT_FREE = r"\bnut[- ]free\b|\bno nuts\b|\bwithout nuts\b"
+_GLUTEN = (r"bread|focaccia|sourdough|bagel|baguette|croissant|pastry|\bpies?\b|\btarts?\b|cake|brownie|cookie|biscuit|"
+           r"scone|cracker|pizza|pasta|lasagne|lasagna|spaghetti|macaroni|mac & cheese|mac and cheese|couscous|bulgur|"
+           r"tabbouleh|wheat|flour|barley|\brye\b|seitan|\bbeer\b|dumpling|crouton|cheese straw|crumble|pancake|waffle|"
+           r"tiramisu")
+_GLUTEN_OK = r"gluten[- ]free|\bgf\b|\bcorn tortilla"
+_DAIRY = (r"cheese|cheddar|\bbrie\b|feta|halloumi|mozzarella|parmesan|ricotta|mascarpone|(?<!peanut )(?<!nut )butter|"
+          r"\bcream\b|creamy|\bmilk\b|yoghurt|yogurt|\bghee\b|custard|tiramisu|scone|cheesecake|\bmousse\b")
+_DAIRY_OK = r"vegan|dairy[- ]free|plant[- ]based|\boat\b|\bsoy\b|coconut"
+_MEAT = (r"pork|beef|chicken|turkey|\blamb\b|\bham\b|bacon|sausage|chorizo|salami|prosciutto|pepperoni|\bmince\b|steak|"
+         r"meatball|chilli con carne|chili con carne|\bfish\b|salmon|tuna|prawn|shrimp|anchov|\bcrab\b|lobster|gelatin|"
+         r"\blard\b|\bduck\b|\bveal\b")
+_MEAT_OK = r"vegan|vegetarian|veggie|plant[- ]based|meat[- ]free|meatless|\btofu\b|seitan|quorn|\bvege?\b"
+_NOT_VEGAN = r"\beggs?\b|mayo|aioli|meringue|pavlova|devilled|\bhoney\b"
+
+
+def dish_tags(name, note, tags):
+    """The tags a dish should carry, given its name and note (see the comment above NUT_WORDS)."""
+    words = ("%s %s" % (name or "", note or "")).lower().replace("\u2019", "'")
+    has = lambda pat: re.search(pat, words) is not None
+    out = [t for t in TAGS if t in (tags or [])]
+    if has(NUT_WORDS) and not has(_NUT_FREE) and "nuts" not in out:
+        out.append("nuts")
+    drop = set()
+    if has(_GLUTEN) and not has(_GLUTEN_OK):
+        drop.add("gf")
+    if has(_DAIRY) and not has(_DAIRY_OK):
+        drop.update(("df", "vegan"))
+    if has(_MEAT) and not has(_MEAT_OK):
+        drop.update(("veg", "vegan"))
+    if has(_NOT_VEGAN) and not has(r"vegan"):
+        drop.add("vegan")
+    return [t for t in TAGS if t in out and t not in drop]
 EXTRA = "Something else"          # a menu section every party has, for whatever doesn't fit
 MAX_GUESTS, MAX_DISHES, MAX_COMMENTS = 60, 150, 400
 SAMPLE = "This is a sample party, so it can't be changed. Start your own party to try it out!"
@@ -142,7 +181,7 @@ def view(p, g):
         "guests": [guest_dict(x, p, g is not None and x == g) for x in guests],
         "dishes": [{"id": d.get_id(), "guest_id": d["guest"].get_id() if d["guest"] else None,
                     "by": names.get(d["guest"].get_id(), "A guest") if d["guest"] else "A guest",
-                    "category": d["category"], "name": d["name"], "serves": d["serves"], "tags": list(d["tags"] or []),
+                    "category": d["category"], "name": d["name"], "serves": d["serves"], "tags": dish_tags(d["name"], d["note"], d["tags"]),
                     "note": d["note"] or "", "mine": g is not None and d["guest"] == g,
                     "can_remove": (g is not None and d["guest"] == g) or is_host or admin} for d in dishes],
         "comments": [{"id": c.get_id(), "by": names.get(c["guest"].get_id(), "A guest") if c["guest"] else "A guest",
@@ -329,7 +368,7 @@ def dish_add(token, secret, dish):
     if len(app_tables.dishes.search(party=p)) >= MAX_DISHES:
         return C.fail("This menu is full (%d dishes). That's quite the feast." % MAX_DISHES)
     app_tables.dishes.add_row(party=p, guest=g, category=cat, name=name, serves=serves,
-                              tags=[t for t in TAGS if t in (dish.get("tags") or [])],
+                              tags=dish_tags(name, dish.get("note"), dish.get("tags")),
                               note=C.text(dish.get("note"), 140), created=C.now(), is_demo=False)
     _touch(p)
     return C.ok(view=view(p, g))

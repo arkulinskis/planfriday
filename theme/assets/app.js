@@ -622,6 +622,8 @@
   /* ------------------------------------------------------------------ diets, tags, dish ideas */
   var DIETS = [['veg', 'Vegetarian'], ['vegan', 'Vegan'], ['gf', 'Gluten-free'], ['df', 'Dairy-free'], ['nutfree', 'Nut allergy'], ['halal', 'Halal']];
   var DISH_TAGS = [['veg', 'Veg'], ['vegan', 'Vegan'], ['gf', 'GF'], ['df', 'Dairy-free'], ['nuts', 'Has nuts'], ['spicy', 'Spicy']];
+  // Same list as NUT_WORDS in server_code/Guests.py (the server has the final say on every tag).
+  var NUT_WORDS = /almond|walnut|pecan|cashew|hazelnut|pistachio|peanut|pine ?nut|macadamia|brazil nut|pesto|praline|marzipan|frangipane|nutella|satay|baklava|nougat|gianduja|amaretti|romesco|dukkah|\bnuts?\b|\bnutty\b/i;
   var SUGGEST = [
     [/soup/i, ['Roasted squash soup', 'French onion soup', 'Minestrone', 'Spicy black bean soup', 'Leek & potato soup', 'Miso soup with tofu']],
     [/bread|bun|cracker/i, ['Garlic bread', 'Focaccia with rosemary', 'Cornbread', 'Seeded sourdough', 'Cheese scones']],
@@ -785,7 +787,7 @@
     PARTS: PARTS, DAY_PARTS: DAY_PARTS, iso: iso, parse: parse, addDays: addDays, today: today, friday: friday,
     slot: slot, slotKey: slotKey, partLabel: partLabel, day: day, shortDate: shortDate, slotLabel: slotLabel, isPast: isPast,
     timeLabel: timeLabel, whenText: whenText, weekendRange: weekendRange, allPast: allPast, countdown: countdown,
-    DIETS: DIETS, DISH_TAGS: DISH_TAGS, suggest: suggest, dietLabel: dietLabel, tagLabel: tagLabel,
+    DIETS: DIETS, DISH_TAGS: DISH_TAGS, NUT_WORDS: NUT_WORDS, suggest: suggest, dietLabel: dietLabel, tagLabel: tagLabel,
     partyUrl: partyUrl, inviteText: inviteText, copy: copy, downloadIcs: downloadIcs, googleCal: googleCal, confetti: confetti,
     remember: remember, forget: forget, partyCard: partyCard,
     wxKind: wxKind, wxIcon: wxIcon, wxChip: wxChip, temp: temp, wind: wind, units: units, advice: advice,
@@ -1460,11 +1462,19 @@
         }).join('') + '</div></div>' +
         '<div class="ui-row end"><button type="button" class="ui-btn ghost" data-close>Cancel</button><button class="ui-btn primary" type="submit">' + UI.icon('check') + 'Put it on the menu</button></div></form>');
       var f = m.el.querySelector('form');
+      var nutsSeen = false;
+      function checkNuts() {  // tick "Has nuts" when the name or note mentions a nut (once, so it can still be unticked)
+        var b = m.el.querySelector('[data-tag=nuts]');
+        var hit = PF.NUT_WORDS.test(f.elements['name'].value + ' ' + f.elements['note'].value) && !/nut[- ]free|no nuts|without nuts/i.test(f.elements['name'].value + ' ' + f.elements['note'].value);
+        if (hit && !nutsSeen) { b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); }
+        nutsSeen = hit;
+      }
+      f.addEventListener('input', checkNuts);
       m.el.addEventListener('click', function (e) {
         var t = e.target.closest('[data-tag]');
         if (t) { t.classList.toggle('on'); t.setAttribute('aria-pressed', t.classList.contains('on')); return; }
         if (e.target.closest('[data-idea]')) {
-          var list = PF.suggest(f.elements['category'].value); n = (n + 1) % list.length; f.elements['name'].value = list[n]; f.elements['name'].focus();
+          var list = PF.suggest(f.elements['category'].value); n = (n + 1) % list.length; f.elements['name'].value = list[n]; f.elements['name'].focus(); checkNuts();
         }
       });
       f.addEventListener('submit', function (e) {
