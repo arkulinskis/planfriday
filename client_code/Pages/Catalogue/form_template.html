@@ -1,0 +1,23 @@
+<anvil-form layout="Plan_Friday.Layouts.Shell">
+  <anvil-block slot="content">
+    <div class="ui-wrap">
+      <header class="ct-mast">
+        <h1>The Weekend Catalogue</h1>
+        <div class="pf-script">13 parties, ready to order by Friday. Plan Friday &amp; Co. present</div>
+        <div class="pf-burst red" aria-hidden="true"><span><b>All</b>free</span></div>
+      </header>
+      <nav class="ct-filters" aria-label="Kinds of party">
+        <div class="ui-seg" role="group" aria-label="Kinds of party">
+          <button type="button" data-tag="all" anvil:name="t_all" anvil:on-dom:click="self.tag_click">Everything</button>
+          <button type="button" data-tag="cosy" anvil:name="t_cosy" anvil:on-dom:click="self.tag_click">Cosy</button>
+          <button type="button" data-tag="brunch" anvil:name="t_brunch" anvil:on-dom:click="self.tag_click">Brunch</button>
+          <button type="button" data-tag="handson" anvil:name="t_handson" anvil:on-dom:click="self.tag_click">Hands-on</button>
+          <button type="button" data-tag="crowd" anvil:name="t_crowd" anvil:on-dom:click="self.tag_click">Big crowd</button>
+          <button type="button" data-tag="outdoor" anvil:name="t_outdoor" anvil:on-dom:click="self.tag_click">Outdoors</button>
+        </div>
+      </nav>
+      <anvil-component type="RepeatingPanel" name="ideas_panel" prop:item_template="Plan_Friday.Items.IdeaCard" prop:role='["ct-grid"]'></anvil-component>
+      <p class="muted small ct-blank">Don't see your party? <a href="#new">Start from a blank order form</a>.</p>
+    </div>
+  </anvil-block>
+</anvil-form>

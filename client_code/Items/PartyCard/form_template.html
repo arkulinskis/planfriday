@@ -1,0 +1,14 @@
+<div class="pcard-host">
+  <a class="pf-pcard" anvil:dom-node="card" href="#">
+    <div class="pf-cover" anvil:name="cover_box"><anvil-component type="Plan_Friday.Components.Art" name="art" bind:cover="self.item['cover']" prop:label="-"></anvil-component></div>
+    <div class="in">
+      <div class="pf-no" anvil:dom-node="no"></div>
+      <h3 anvil:dom-node="title"></h3>
+      <div><span anvil:dom-node="status"></span></div>
+      <div class="pf-leader small"><span class="a" anvil:dom-node="seats"></span><span class="dots" aria-hidden="true"></span><span class="b" anvil:dom-node="maybe"></span></div>
+      <div class="pf-leader small"><span class="a">Menu</span><span class="dots" aria-hidden="true"></span><span class="b" anvil:dom-node="menu"></span></div>
+      <div class="pf-leader small" anvil:name="wx_row"><span class="a">Weather</span><span class="dots" aria-hidden="true"></span><span class="b"><anvil-component type="Plan_Friday.Components.WxChip" name="wx" bind:forecast="self.item.get('wx')"></anvil-component></span></div>
+      <span class="ui-badge" anvil:name="closed">RSVPs closed</span>
+    </div>
+  </a>
+</div>

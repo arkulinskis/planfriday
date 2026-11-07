@@ -1,0 +1,17 @@
+<div class="ui pt-dlg">
+  <div class="pf-label" anvil:dom-node="party"></div>
+  <h2 class="dlg-h">Lock in the day</h2>
+  <p class="muted">Everyone sees it right away, with a button to add it to their calendar.</p>
+  <div class="ui-stack">
+    <div class="pt-lockopts" role="group" aria-label="Which slot">
+      <anvil-component type="RepeatingPanel" name="slots_panel" prop:item_template="Plan_Friday.Items.PickBtn" prop:role='["pt-lockopts-list"]'></anvil-component>
+    </div>
+    <label class="ui-field pt-starts"><span>Starts at</span>
+      <anvil-component type="TextBox" name="time_box"></anvil-component>
+    </label>
+    <div class="ui-row end">
+      <anvil-component type="Button" name="cancel_button" prop:text="Not yet" prop:role='["btn", "btn-ghost"]'></anvil-component>
+      <anvil-component type="Button" name="save_button" prop:text="Lock it in" prop:role='["btn", "btn-primary", "ic-lock"]'></anvil-component>
+    </div>
+  </div>
+</div>

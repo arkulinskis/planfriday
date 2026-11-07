@@ -56,7 +56,7 @@ def fetch(lat, lon):
              "&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m"
              "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunset" % (lat, lon))
     try:
-        days = {}
+        days: dict = {}
         d = r["daily"]
         for i, date in enumerate(d["time"]):
             days[date] = {"code": d["weather_code"][i], "tmax": d["temperature_2m_max"][i], "tmin": d["temperature_2m_min"][i],

@@ -1,0 +1,209 @@
+<anvil-form layout="Plan_Friday.Layouts.Shell">
+  <anvil-block slot="content">
+    <div class="ui-wrap pt">
+      <div class="ui-empty pt-missing" anvil:name="missing_part">
+        <i class="ic ic-ticket"></i>
+        <h1 class="pt-missing-h">We couldn't find that party</h1>
+        <p>The link may be incomplete, or the host has deleted the party. Ask them to send it again.</p>
+        <div class="ui-row pt-center"><a class="ui-btn primary" href="#new">Host your own</a><a class="ui-btn" href="#catalogue">Browse the catalogue</a></div>
+      </div>
+
+      <div anvil:name="page_part">
+        <div class="pt-sample" anvil:name="sample_bar">
+          <b><i class="ic ic-info"></i> Sample page · a party for you to look around</b>
+          <anvil-component type="Button" name="copy_sample_button" prop:text="Copy it as my party" prop:role='["btn", "btn-sm", "ic-copy"]'></anvil-component>
+          <a class="ui-btn sm" href="#auth/signup" anvil:name="sample_signup">Host your own, free</a>
+        </div>
+
+        <section class="pt-hero">
+          <div class="pt-hero-cover">
+            <div class="pf-cover" anvil:name="hero_cover"><anvil-component type="Plan_Friday.Components.Art" name="hero_art"></anvil-component></div>
+            <span class="pf-stamp" anvil:name="hero_stamp"><span anvil:dom-node="stamp_text"></span></span>
+          </div>
+          <div>
+            <div class="pf-no" anvil:dom-node="hero_no"></div>
+            <h1 anvil:dom-node="hero_title"></h1>
+            <div class="pt-meta">
+              <span><i class="ic ic-user"></i><span anvil:dom-node="meta_host"></span></span>
+              <span anvil:name="meta_loc_part"><i class="ic ic-pin"></i><span anvil:dom-node="meta_loc"></span></span>
+              <span><i class="ic ic-users"></i><span anvil:dom-node="meta_seats"></span></span>
+              <span anvil:name="meta_out"><i class="ic ic-sun"></i>Outdoors</span>
+            </div>
+            <anvil-component type="Label" name="blurb" prop:role='["pt-blurb"]'></anvil-component>
+
+            <div class="pt-when on" anvil:name="when_on">
+              <div class="pf-burst red sm" aria-hidden="true"><span><b>It's</b>on!</span></div>
+              <div class="grow"><div class="pf-label">The day is set</div><div class="big" anvil:dom-node="when_text"></div></div>
+              <div class="ui-row">
+                <anvil-component type="Button" name="ics_button" prop:text="Add to calendar" prop:role='["btn", "btn-sm", "ic-download"]'></anvil-component>
+                <a class="ui-btn sm" target="_blank" rel="noopener" href="#" anvil:dom-node="gcal_link"><i class="ic ic-calendar"></i>Google</a>
+              </div>
+            </div>
+            <div class="pt-when" anvil:name="when_tbd">
+              <div class="grow"><div class="pf-label" anvil:dom-node="tbd_label"></div><div class="big" anvil:dom-node="tbd_text"></div></div>
+              <anvil-component type="Button" name="lock_best_button" prop:text="Lock it in" prop:role='["btn", "btn-primary", "btn-sm", "ic-lock"]'></anvil-component>
+            </div>
+
+            <p class="pt-wxnote muted" anvil:name="wx_hint"><i class="ic ic-sun"></i> Add a town in <a href="#" anvil:dom-node="wx_edit_link">Edit</a> to get a weather check for each day.</p>
+            <div class="pt-wx" anvil:name="wx_box">
+              <div class="pt-wx-ic" anvil:name="wx_ic"><anvil-component type="Plan_Friday.Components.Art" name="wx_art"></anvil-component></div>
+              <div class="grow">
+                <div class="pf-label" anvil:dom-node="wx_label"></div>
+                <div class="big" anvil:dom-node="wx_big"></div>
+                <div class="small" anvil:dom-node="wx_small"></div>
+                <div class="pf-script advice" anvil:dom-node="wx_advice"></div>
+              </div>
+              <div class="ui-seg" role="group" aria-label="Units" anvil:name="units_seg">
+                <button type="button" data-u="C" anvil:name="u_c" anvil:on-dom:click="self.units_click">°C</button>
+                <button type="button" data-u="F" anvil:name="u_f" anvil:on-dom:click="self.units_click">°F</button>
+              </div>
+            </div>
+            <p class="pt-credit" anvil:name="wx_credit">Forecast by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a><span anvil:dom-node="wx_updated"></span></p>
+            <div class="ui-note pt-again" anvil:name="again_note">This weekend has been and gone.
+              <anvil-component type="Button" name="again_button" prop:text="Run it again next weekend →" prop:role='["link-btn"]'></anvil-component>
+            </div>
+          </div>
+        </section>
+
+        <section class="pf-coupon pt-share" anvil:name="share_box">
+          <span class="pf-scissors"><i class="ic ic-scissors"></i></span>
+          <div class="ui-row between pt-share-top">
+            <h2 class="pt-share-h">For the host: send this link to your guests</h2>
+            <anvil-component type="Label" name="status_badge" prop:role='["badge"]'></anvil-component>
+          </div>
+          <div class="link">
+            <anvil-component type="TextBox" name="link_box" prop:role='["pt-linkbox"]'></anvil-component>
+            <anvil-component type="Button" name="copy_button" prop:text="Copy link" prop:role='["btn", "btn-primary", "ic-copy"]'></anvil-component>
+          </div>
+          <div class="ways">
+            <anvil-component type="Button" name="share_button" prop:text="Share" prop:role='["btn", "btn-sm", "ic-share"]'></anvil-component>
+            <a class="ui-btn sm" href="#" anvil:dom-node="sms_link"><i class="ic ic-phone"></i>Text</a>
+            <a class="ui-btn sm" href="#" target="_blank" rel="noopener" anvil:dom-node="wa_link"><i class="ic ic-chat"></i>WhatsApp</a>
+            <a class="ui-btn sm" href="#" anvil:dom-node="mail_link"><i class="ic ic-mail"></i>Email</a>
+          </div>
+          <div class="pt-host">
+            <a class="ui-btn sm" href="#" anvil:name="edit_link"><i class="ic ic-edit"></i>Edit</a>
+            <anvil-component type="Button" name="lock_button" prop:text="Lock in the day" prop:role='["btn", "btn-sm", "ic-lock"]'></anvil-component>
+            <anvil-component type="Button" name="unlock_button" prop:text="Change the day" prop:role='["btn", "btn-sm", "ic-refresh"]'></anvil-component>
+            <anvil-component type="Button" name="status_button" prop:text="Close RSVPs" prop:role='["btn", "btn-sm", "ic-x"]'></anvil-component>
+            <a class="ui-btn sm" href="#" anvil:dom-node="sheet_link"><i class="ic ic-print"></i>Order sheet</a>
+            <anvil-component type="Button" name="dup_button" prop:text="Run it again" prop:role='["btn", "btn-sm", "ic-copy"]'></anvil-component>
+            <anvil-component type="Button" name="delete_button" prop:text="Delete" prop:role='["btn", "btn-sm", "btn-danger", "ic-trash"]'></anvil-component>
+          </div>
+        </section>
+
+        <section class="pf-coupon pt-slip" anvil:name="join_slip">
+          <span class="pf-scissors"><i class="ic ic-scissors"></i></span>
+          <h2>Are you coming?</h2>
+          <p class="muted">Your order slip, no account needed: put your name down, then tick the days you're free and pick something to bring.</p>
+          <anvil-component type="Label" name="blocked_note" prop:role='["msg-note", "pt-blocked"]'></anvil-component>
+          <div class="pt-join" anvil:name="join_form">
+            <label class="ui-field"><span>Your name</span>
+              <anvil-component type="TextBox" name="join_name" prop:placeholder="As your friends know you"></anvil-component>
+            </label>
+            <div class="btns">
+              <anvil-component type="Button" name="join_yes" prop:text="Count me in" prop:role='["btn", "btn-primary", "ic-check"]'></anvil-component>
+              <anvil-component type="Button" name="join_maybe" prop:text="Maybe" prop:role='["btn"]'></anvil-component>
+              <anvil-component type="Button" name="join_no" prop:text="Can't make it" prop:role='["btn"]'></anvil-component>
+            </div>
+          </div>
+          <p class="small muted pt-signin" anvil:name="signin_hint">This browser remembers you. On another device? <a href="#auth">Sign in</a> and it follows you.</p>
+        </section>
+
+        <section class="ui-card pt-slip" anvil:name="mine_slip">
+          <div class="ui-row between">
+            <h2 anvil:dom-node="mine_title"></h2>
+            <anvil-component type="Button" name="rename_button" prop:text="Change name" prop:role='["btn", "btn-ghost", "btn-sm", "ic-edit"]'></anvil-component>
+          </div>
+          <div class="pt-mine">
+            <div><span class="pf-label">RSVP</span>
+              <div class="ui-seg pt-rsvp" role="group" aria-label="RSVP">
+                <anvil-component type="Button" name="r_yes" prop:text="Coming" prop:role='["seg", "rsvp-yes"]'></anvil-component>
+                <anvil-component type="Button" name="r_maybe" prop:text="Maybe" prop:role='["seg", "rsvp-maybe"]'></anvil-component>
+                <anvil-component type="Button" name="r_no" prop:text="Can't" prop:role='["seg", "rsvp-no"]'></anvil-component>
+              </div>
+            </div>
+            <div><span class="pf-label">Bringing extra people</span>
+              <div class="pt-step" role="group" aria-label="Extra people">
+                <anvil-component type="Button" name="plus_less" prop:text="−" prop:role='["step"]'></anvil-component>
+                <anvil-component type="Label" name="plus_n" prop:role='["step-n"]'></anvil-component>
+                <anvil-component type="Button" name="plus_more" prop:text="+" prop:role='["step"]'></anvil-component>
+              </div>
+            </div>
+            <div><span class="pf-label">Your diet <span class="pf-script pt-thanks">(the host will thank you)</span></span>
+              <div class="pt-diets" role="group" aria-label="Your diet">
+                <anvil-component type="RepeatingPanel" name="diets_panel" prop:item_template="Plan_Friday.Items.PickBtn" prop:role='["contents"]'></anvil-component>
+              </div>
+            </div>
+          </div>
+          <p class="small muted pt-closed" anvil:name="closed_note">RSVPs are closed, but you can still change your dish and write in the guestbook.</p>
+          <div class="pt-forget" anvil:name="forget_part">
+            <anvil-component type="Button" name="forget_button" prop:text="Take me off the guest list" prop:role='["link-btn"]'></anvil-component>
+          </div>
+        </section>
+
+        <div class="pt-grid">
+          <div>
+            <section class="pt-sec">
+              <div class="pf-sec"><h2>When are you free?</h2><span class="pf-label" anvil:dom-node="when_hint"></span></div>
+              <anvil-component type="RepeatingPanel" name="slots_panel" prop:item_template="Plan_Friday.Items.SlotRow" prop:role='["pt-slots"]'></anvil-component>
+            </section>
+
+            <section class="pt-sec">
+              <div class="pf-sec"><h2>The menu</h2><span class="pf-label" anvil:dom-node="dish_count"></span></div>
+              <div class="pt-meterrow" anvil:name="meter_row">
+                <b class="pf-label pt-filled" anvil:dom-node="filled"></b>
+                <span class="small muted" anvil:dom-node="still"></span>
+                <div class="pf-meter" role="progressbar" aria-label="Menu filled" aria-valuemin="0" aria-valuemax="100" anvil:dom-node="meter"><i anvil:dom-node="meter_bar"></i></div>
+              </div>
+              <anvil-component type="RepeatingPanel" name="cats_panel" prop:item_template="Plan_Friday.Items.MenuCat"></anvil-component>
+            </section>
+
+            <section class="pt-sec pt-book">
+              <div class="pf-sec"><h2>Letters to the host</h2><span class="pf-label" anvil:dom-node="note_count"></span></div>
+              <div class="pt-book-form" anvil:name="note_form">
+                <label class="ui-field"><span>Write a note <em>(everyone with the link can read it)</em></span>
+                  <anvil-component type="TextArea" name="note_box" prop:placeholder="Can I bring my dog? Running 15 minutes late? Allergic to cilantro?" prop:height="80"></anvil-component>
+                </label>
+                <div class="ui-row end"><anvil-component type="Button" name="post_button" prop:text="Post it" prop:role='["btn", "btn-primary", "ic-mail"]'></anvil-component></div>
+              </div>
+              <p class="muted" anvil:name="note_hint">Put your name on the guest list to write a note.</p>
+              <anvil-component type="RepeatingPanel" name="notes_panel" prop:item_template="Plan_Friday.Items.NoteRow"></anvil-component>
+              <div class="ui-empty pt-nonotes" anvil:name="no_notes"><i class="ic ic-mail"></i><p>No notes yet. Questions, jokes and allergy warnings welcome.</p></div>
+            </section>
+          </div>
+
+          <aside class="pt-side">
+            <div class="ui-card">
+              <h3>The guest list</h3>
+              <div anvil:name="seats_part">
+                <div class="pf-leader small"><span class="a">Seats</span><span class="dots" aria-hidden="true"></span><span class="b" anvil:dom-node="seats_b"></span></div>
+                <div class="pf-meter pt-seatmeter" role="progressbar" aria-label="Seats taken" aria-valuemin="0" aria-valuemax="100" anvil:dom-node="seat_meter"><i anvil:dom-node="seat_bar"></i></div>
+              </div>
+              <anvil-component type="RepeatingPanel" name="groups_panel" prop:item_template="Plan_Friday.Items.GuestGroup"></anvil-component>
+              <p class="muted" anvil:name="no_guests">Nobody yet. Be the first!</p>
+            </div>
+            <div class="ui-card">
+              <h3>At the table</h3>
+              <anvil-component type="RepeatingPanel" name="diet_sum_panel" prop:item_template="Plan_Friday.Items.LeaderRow" prop:role='["pt-dietsum"]'></anvil-component>
+              <p class="muted small" anvil:name="no_diets">No dietary notes yet.</p>
+              <anvil-component type="RepeatingPanel" name="warn_panel" prop:item_template="Plan_Friday.Items.Badge"></anvil-component>
+            </div>
+            <div class="ui-card" anvil:name="pass_card">
+              <h3>Pass it on</h3>
+              <p class="small muted">Anyone with this link can join the guest list.</p>
+              <anvil-component type="Button" name="copy2_button" prop:text="Copy the link" prop:role='["btn", "btn-sm", "btn-block", "ic-link"]'></anvil-component>
+              <div class="ways">
+                <anvil-component type="Button" name="share2_button" prop:text="Share" prop:role='["btn", "btn-sm", "ic-share"]'></anvil-component>
+                <a class="ui-btn sm" href="#" anvil:dom-node="sms2_link"><i class="ic ic-phone"></i>Text</a>
+                <a class="ui-btn sm" href="#" target="_blank" rel="noopener" anvil:dom-node="wa2_link"><i class="ic ic-chat"></i>WhatsApp</a>
+                <a class="ui-btn sm" href="#" anvil:dom-node="mail2_link"><i class="ic ic-mail"></i>Email</a>
+              </div>
+              <a class="ui-btn ghost sm" href="#" anvil:dom-node="sheet2_link"><i class="ic ic-print"></i>Printable order sheet</a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </anvil-block>
+</anvil-form>

@@ -1,0 +1,10 @@
+<div class="cat-host">
+  <div class="pt-cat">
+    <header><h3 anvil:dom-node="name"></h3><div class="need"><span class="pf-label" anvil:dom-node="need"></span><span class="pf-boxes" aria-hidden="true" anvil:dom-node="boxes"></span></div></header>
+    <anvil-component type="RepeatingPanel" name="dishes_panel" prop:item_template="Plan_Friday.Items.DishRow" prop:role='["pt-dishes"]'></anvil-component>
+    <p class="empty" anvil:name="empty_part"><span anvil:dom-node="empty"></span></p>
+    <div class="add" anvil:name="add_part">
+      <anvil-component type="Button" name="bring_button" prop:role='["btn", "btn-sm", "ic-plus"]'></anvil-component>
+    </div>
+  </div>
+</div>

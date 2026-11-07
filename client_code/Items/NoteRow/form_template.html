@@ -1,0 +1,7 @@
+<div class="note-host">
+  <article class="pt-note" anvil:name="card">
+    <div class="by"><span anvil:dom-node="by"></span><span class="ui-badge brand" anvil:name="host_badge">Host</span><time anvil:dom-node="when"></time></div>
+    <anvil-component type="Label" name="body" prop:role='["pt-note-body"]' bind:text="self.item['body']"></anvil-component>
+    <anvil-component type="Button" name="x_button" prop:text="Delete this note" prop:role='["btn", "btn-ghost", "btn-icon", "btn-sm", "ic-x", "pt-x"]'></anvil-component>
+  </article>
+</div>

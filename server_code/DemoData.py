@@ -16,7 +16,7 @@ from . import common as C
 SAMPLE_TOKEN = "sample"
 # The sample parties' weather check is for Montréal (stored directly, so loading the demo needs no look-up).
 DEMO_PLACE = ("Montréal, Quebec, Canada", 45.5088, -73.5878)
-DEMO_HOSTS = [
+DEMO_HOSTS: list = [
     ("Maya Chen", "maya.demo@example.com"),
     ("Theo Martin", "theo.demo@example.com"),
     ("Ines Ozola", "ines.demo@example.com"),
@@ -25,7 +25,7 @@ DEMO_HOSTS = [
 # chosen slot index or None, menu [(category, wanted)], guests, dishes, comments.
 # Guests: (name, rsvp, plus, diet, answers per slot "y"/"m"/"n"/"-"); the host is guest 0.
 # Dishes: (guest index, category, name, serves, tags). Comments: (guest index, hours ago, text).
-DEMO_PARTIES = [
+DEMO_PARTIES: list = [
     {"token": SAMPLE_TOKEN, "host": 0, "catalog_no": "No. 12F 4108", "title": "Soup Night Supper", "cover": "soup",
      "style": "potluck", "cap": 12, "location": "Maya's flat, 3rd floor (buzz 31)",
      "blurb": "It's getting cold, so: soup. Everyone brings a pot of something, I'll do bread and bowls. "

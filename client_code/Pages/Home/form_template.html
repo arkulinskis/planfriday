@@ -1,0 +1,47 @@
+<anvil-form layout="Plan_Friday.Layouts.Shell">
+  <anvil-block slot="content">
+    <div class="ui-wrap">
+      <div class="hm-top">
+        <section class="hm-count">
+          <div>
+            <h1 anvil:dom-node="cd_big"></h1>
+            <p anvil:dom-node="cd_small"></p>
+            <span class="wk" anvil:dom-node="cd_week"></span>
+          </div>
+          <div class="pf-burst" aria-hidden="true"><span><b anvil:dom-node="cd_burst"></b></span></div>
+        </section>
+        <section class="pf-coupon hm-coupon"><span class="pf-scissors"><i class="ic ic-scissors"></i></span>
+          <h2>Host a party this weekend</h2>
+          <p>Coupon, good any day: two minutes to fill in, one link to send. Your friends do the rest.</p>
+          <div class="ui-row"><a class="ui-btn primary" href="#new"><i class="ic ic-plus"></i>Start a party</a><a class="ui-btn" href="#catalogue">Browse ideas</a></div>
+        </section>
+      </div>
+
+      <div class="hm-block">
+        <div class="pf-sec"><h2>You're hosting</h2><span class="pf-label" anvil:dom-node="hosting_count"></span></div>
+        <anvil-component type="RepeatingPanel" name="hosting_panel" prop:item_template="Plan_Friday.Items.PartyCard" prop:role='["pf-pcards"]'></anvil-component>
+        <div class="ui-empty" anvil:name="hosting_empty">
+          <i class="ic ic-pot"></i>
+          <h3>Nothing on the stove yet</h3>
+          <p>Start a party, or order one straight from the catalogue.</p>
+          <p anvil:name="sample_line"><a href="#p/sample" anvil:dom-node="sample_link">Peek at a sample party first</a></p>
+        </div>
+      </div>
+
+      <div class="hm-block" anvil:name="invited_block">
+        <div class="pf-sec"><h2>You're invited</h2><span class="pf-label">From your friends</span></div>
+        <anvil-component type="RepeatingPanel" name="invited_panel" prop:item_template="Plan_Friday.Items.PartyCard" prop:role='["pf-pcards"]'></anvil-component>
+      </div>
+
+      <div class="hm-block" anvil:name="device_block">
+        <div class="pf-sec"><h2>Opened on this device</h2><span class="pf-label">Links you followed</span></div>
+        <anvil-component type="RepeatingPanel" name="device_panel" prop:item_template="Plan_Friday.Items.TicketLink" prop:role='["hm-device"]'></anvil-component>
+      </div>
+
+      <div class="hm-block">
+        <div class="pf-sec"><h2>Today's picks from the catalogue</h2><a class="pf-label" href="#catalogue">See all 13 →</a></div>
+        <anvil-component type="RepeatingPanel" name="picks_panel" prop:item_template="Plan_Friday.Items.PickCard" prop:role='["hm-picks"]'></anvil-component>
+      </div>
+    </div>
+  </anvil-block>
+</anvil-form>

@@ -1,0 +1,22 @@
+---
+custom_component: true
+properties:
+  - name: cover
+    type: string
+    default_value: "classic"
+    description: Which party picture (pf.COVERS); ignored when wx is set
+    default_binding_prop: true
+  - name: label
+    type: string
+    default_value: ""
+    description: "What a screen reader says; empty = the picture's usual name, '-' = decorative"
+  - name: wx
+    type: object
+    description: A forecast dict (code, hour, temp, rain); draws its weather icon instead of a party picture
+toolbox_item:
+  title: Art
+  group: Plan Friday
+help_text: |
+  A party picture or a weather icon: inline SVG line art in the three printing inks, drawn by theme/assets/pf.js.
+---
+<div class="pf-art-host"><span class="pf-art-box" anvil:dom-node="box"></span></div>

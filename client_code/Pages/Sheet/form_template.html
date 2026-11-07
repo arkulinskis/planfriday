@@ -1,0 +1,28 @@
+<anvil-form layout="Plan_Friday.Layouts.Shell">
+  <anvil-block slot="content">
+    <div class="ui-wrap sh-wrap">
+      <div class="ui-empty" anvil:name="missing_part"><h1 class="pt-missing-h">We couldn't find that party</h1><p><a href="#catalogue">Browse the catalogue</a></p></div>
+      <div anvil:name="page_part">
+        <div class="sh-tools no-print">
+          <a class="ui-btn" href="#" anvil:dom-node="back_link"><i class="ic ic-back"></i>Back to the party</a>
+          <anvil-component type="Button" name="print_button" prop:text="Print it" prop:role='["btn", "btn-primary", "ic-print"]'></anvil-component>
+        </div>
+        <article class="sh-page">
+          <div class="sh-top">
+            <div>
+              <div class="pf-no" anvil:dom-node="no"></div>
+              <h1 anvil:dom-node="title"></h1>
+              <div class="pf-label" anvil:dom-node="when"></div>
+            </div>
+            <div class="pf-cover"><anvil-component type="Plan_Friday.Components.Art" name="art" prop:label="-"></anvil-component></div>
+          </div>
+          <anvil-component type="RepeatingPanel" name="facts_panel" prop:item_template="Plan_Friday.Items.LeaderRow" prop:role='["sh-facts"]'></anvil-component>
+          <anvil-component type="RepeatingPanel" name="cats_panel" prop:item_template="Plan_Friday.Items.SheetCat"></anvil-component>
+          <h2 class="sh-caption" anvil:dom-node="coming"></h2>
+          <anvil-component type="RepeatingPanel" name="guests_panel" prop:item_template="Plan_Friday.Items.SheetGuest" prop:role='["sh-guests"]'></anvil-component>
+          <p class="sh-foot" anvil:dom-node="foot"></p>
+        </article>
+      </div>
+    </div>
+  </anvil-block>
+</anvil-form>

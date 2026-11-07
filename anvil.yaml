@@ -436,52 +436,57 @@ metadata:
   title: 'Plan Friday: plan a last-minute weekend dinner party'
 name: Plan Friday
 native_deps:
-  head_html: "<script src=\"_/theme/legal-kit.js?v=f4c10cc7e3\"></script>\n<!-- seo:start (APP_MAKER/seo: edit seo/apps/planfriday.json\
-    \ and run seo.py, not here) -->\n<link rel=\"canonical\" href=\"https://planfriday.com/\">\n<meta name=\"robots\" content=\"\
-    index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1\">\n<meta name=\"keywords\" content=\"dinner\
-    \ party planner, potluck sign up, weekend plans with friends, party RSVP link, what to bring list, potluck organizer,\
-    \ dinner party ideas, group scheduling, host a dinner party\">\n<meta name=\"author\" content=\"Arkvital\">\n<meta property=\"\
-    og:type\" content=\"website\">\n<meta property=\"og:site_name\" content=\"Plan Friday\">\n<meta property=\"og:title\"\
-    \ content=\"Plan Friday: plan a last-minute weekend dinner party\">\n<meta property=\"og:description\" content=\"Plan\
-    \ a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they&#x27;re bringing,\
-    \ and you lock in the best day. No guest accounts.\">\n<meta property=\"og:locale\" content=\"en_CA\">\n<meta property=\"\
-    og:url\" content=\"https://planfriday.com/\">\n<meta property=\"og:image\" content=\"https://planfriday.com/_/theme/og-image.png\"\
-    >\n<meta property=\"og:image:width\" content=\"1200\"><meta property=\"og:image:height\" content=\"630\">\n<meta property=\"\
-    og:image:alt\" content=\"Plan Friday: On Friday, send one link. Friends pick the day and what they bring.\">\n<meta name=\"\
-    twitter:card\" content=\"summary_large_image\">\n<meta name=\"twitter:title\" content=\"Plan Friday: plan a last-minute\
-    \ weekend dinner party\">\n<meta name=\"twitter:description\" content=\"Plan a last-minute weekend dinner party on Friday:\
-    \ send one link, guests pick the day and say what they&#x27;re bringing, and you lock in the best day. No guest accounts.\"\
-    >\n<meta name=\"twitter:image\" content=\"https://planfriday.com/_/theme/og-image.png\">\n<link rel=\"alternate\" type=\"\
-    text/plain\" title=\"Plan Friday for AI assistants\" href=\"https://planfriday.com/llms.txt\">\n<script type=\"application/ld+json\"\
-    >{\"@context\": \"https://schema.org\", \"@graph\": [{\"@type\": \"WebApplication\", \"@id\": \"https://planfriday.com/#app\"\
-    , \"name\": \"Plan Friday\", \"url\": \"https://planfriday.com/\", \"description\": \"Plan a last-minute weekend dinner\
-    \ party on Friday: send one link, guests pick the day and say what they're bringing, and you lock in the best day. No\
-    \ guest accounts.\", \"image\": \"https://planfriday.com/_/theme/og-image.png\", \"inLanguage\": \"en\", \"publisher\"\
-    : {\"@id\": \"https://arkvital.com/#org\"}, \"keywords\": \"dinner party planner, potluck sign up, weekend plans with\
-    \ friends, party RSVP link, what to bring list, potluck organizer, dinner party ideas, group scheduling, host a dinner\
-    \ party\", \"applicationCategory\": \"LifestyleApplication\", \"operatingSystem\": \"Any (web browser)\", \"browserRequirements\"\
-    : \"Requires JavaScript and a modern web browser\", \"featureList\": [\"One link for the whole party; guests need no account\"\
-    , \"Guests pick the weekend slots that suit them\", \"Who brings what: soup, salad, dessert and more\", \"Diets, plus-ones\
-    \ and notes on every RSVP\", \"13 ready-made party ideas with suggested menus\", \"Add the locked-in day to your calendar\"\
-    ], \"audience\": {\"@type\": \"Audience\", \"audienceType\": \"Hosts who want friends over this weekend\"}}, {\"@type\"\
-    : \"WebSite\", \"@id\": \"https://planfriday.com/#site\", \"url\": \"https://planfriday.com/\", \"name\": \"Plan Friday\"\
-    , \"publisher\": {\"@id\": \"https://arkvital.com/#org\"}}, {\"@type\": \"Organization\", \"@id\": \"https://arkvital.com/#org\"\
-    , \"name\": \"Arkvital\", \"url\": \"https://arkvital.com\", \"email\": \"arkvital@outlook.com\", \"address\": {\"@type\"\
-    : \"PostalAddress\", \"addressLocality\": \"Montreal\", \"addressRegion\": \"QC\", \"addressCountry\": \"CA\"}}]}</script>\n\
-    <!-- seo:end -->\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n<meta\
-    \ name=\"theme-color\" content=\"#c62a1f\">\n<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n<link rel=\"\
-    preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n\
-    <link href=\"https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Oswald:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Yellowtail&display=swap\"\
-    \ rel=\"stylesheet\">\n<link id=\"ui-favicon\" rel=\"icon\" type=\"image/svg+xml\" href=\"_/theme/icon.svg?v=7ccb6c8a55\"\
-    >\n<link rel=\"apple-touch-icon\" href=\"_/theme/icon-180.png?v=7ccb6c8a55\">\n<script>\n/* Keep our tab icon: Anvil adds\
-    \ its own <link rel=\"icon\">, so drop any other icon link. */\n(function () {\n  function keep() {\n    var ours = document.getElementById('ui-favicon');\n\
-    \    if (!ours) return;\n    document.querySelectorAll('link[rel~=\"icon\"]').forEach(function (l) { if (l !== ours) l.remove();\
-    \ });\n  }\n  keep();\n  document.addEventListener('DOMContentLoaded', keep);\n  window.addEventListener('load', keep);\n\
-    })();\n</script>\n\n<!-- Prepsto feedback panel: every \"Submit feedback\" link and button opens it (it is the only feedback\
-    \ channel). No floating button, no cookies, nothing loads until it is opened. Codes: APP_MAKER/prepsto-links.json -->\n\
-    <script src=\"https://prepsto.com/_/theme/widget.js\" data-prepsto=\"s28bant\" data-button=\"false\" data-label=\"Submit\
-    \ feedback\" async></script>\n<link rel=\"stylesheet\" href=\"_/theme/app.css?v=9417602812\">\n<script src=\"_/theme/app.js?v=f16ea2b97c\"\
-    ></script>\n"
+  head_html: |
+    <script src="_/theme/legal-kit.js?v=3cafdec1ff"></script>
+    <!-- seo:start (APP_MAKER/seo: edit seo/apps/planfriday.json and run seo.py, not here) -->
+    <link rel="canonical" href="https://planfriday.com/">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="keywords" content="dinner party planner, potluck sign up, weekend plans with friends, party RSVP link, what to bring list, potluck organizer, dinner party ideas, group scheduling, host a dinner party">
+    <meta name="author" content="Arkvital">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Plan Friday">
+    <meta property="og:title" content="Plan Friday: plan a last-minute weekend dinner party">
+    <meta property="og:description" content="Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they&#x27;re bringing, and you lock in the best day. No guest accounts.">
+    <meta property="og:locale" content="en_CA">
+    <meta property="og:url" content="https://planfriday.com/">
+    <meta property="og:image" content="https://planfriday.com/_/theme/og-image.png">
+    <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Plan Friday: On Friday, send one link. Friends pick the day and what they bring.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Plan Friday: plan a last-minute weekend dinner party">
+    <meta name="twitter:description" content="Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they&#x27;re bringing, and you lock in the best day. No guest accounts.">
+    <meta name="twitter:image" content="https://planfriday.com/_/theme/og-image.png">
+    <link rel="alternate" type="text/plain" title="Plan Friday for AI assistants" href="https://planfriday.com/llms.txt">
+    <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebApplication", "@id": "https://planfriday.com/#app", "name": "Plan Friday", "url": "https://planfriday.com/", "description": "Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they're bringing, and you lock in the best day. No guest accounts.", "image": "https://planfriday.com/_/theme/og-image.png", "inLanguage": "en", "publisher": {"@id": "https://arkvital.com/#org"}, "keywords": "dinner party planner, potluck sign up, weekend plans with friends, party RSVP link, what to bring list, potluck organizer, dinner party ideas, group scheduling, host a dinner party", "applicationCategory": "LifestyleApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires JavaScript and a modern web browser", "featureList": ["One link for the whole party; guests need no account", "Guests pick the weekend slots that suit them", "Who brings what: soup, salad, dessert and more", "Diets, plus-ones and notes on every RSVP", "13 ready-made party ideas with suggested menus", "Add the locked-in day to your calendar"], "audience": {"@type": "Audience", "audienceType": "Hosts who want friends over this weekend"}}, {"@type": "WebSite", "@id": "https://planfriday.com/#site", "url": "https://planfriday.com/", "name": "Plan Friday", "publisher": {"@id": "https://arkvital.com/#org"}}, {"@type": "Organization", "@id": "https://arkvital.com/#org", "name": "Arkvital", "url": "https://arkvital.com", "email": "arkvital@outlook.com", "address": {"@type": "PostalAddress", "addressLocality": "Montreal", "addressRegion": "QC", "addressCountry": "CA"}}]}</script>
+    <!-- seo:end -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#c62a1f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Oswald:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Yellowtail&display=swap" rel="stylesheet">
+    <link id="ui-favicon" rel="icon" type="image/svg+xml" href="_/theme/icon.svg?v=e1b91efa0f">
+    <link rel="apple-touch-icon" href="_/theme/icon-180.png?v=273c9d405a">
+    <script>
+    /* Keep our tab icon: Anvil adds its own <link rel="icon">, so drop any other icon link. */
+    (function () {
+      function keep() {
+        var ours = document.getElementById('ui-favicon');
+        if (!ours) return;
+        document.querySelectorAll('link[rel~="icon"]').forEach(function (l) { if (l !== ours) l.remove(); });
+      }
+      keep();
+      document.addEventListener('DOMContentLoaded', keep);
+      window.addEventListener('load', keep);
+    })();
+    </script>
+
+    <!-- Prepsto feedback panel: every "Submit feedback" link and button opens it (it is the only feedback channel). No floating button, no cookies, nothing loads until it is opened. Codes: APP_MAKER/prepsto-links.json -->
+    <script src="https://prepsto.com/_/theme/widget.js" data-prepsto="s28bant" data-button="false" data-label="Submit feedback" async></script>
+    <link rel="stylesheet" href="_/theme/icons.css?v=51251cc446">
+    <link rel="stylesheet" href="_/theme/app.css?v=ecc50b8e5d">
+    <script src="_/theme/app-kit.js?v=08cc8d1ba1"></script>
+    <script src="_/theme/pf.js?v=b2ef7b92ad"></script>
 package_name: Plan_Friday
 runtime_options:
   client_version: '3'
@@ -509,5 +514,5 @@ services:
   server_config: {}
   source: /runtime/services/google.yml
 startup:
-  module: Main
-  type: form
+  module: startup
+  type: module

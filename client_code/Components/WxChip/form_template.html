@@ -1,0 +1,14 @@
+---
+custom_component: true
+properties:
+  - name: forecast
+    type: object
+    description: A forecast dict from Weather.py (code, hour, temp, rain)
+    default_binding_prop: true
+toolbox_item:
+  title: Weather chip
+  group: Plan Friday
+help_text: |
+  A small pill: the weather icon, the temperature and the chance of rain (°C or °F, as the visitor picked).
+---
+<div class="pf-wx-host"><span class="pf-wx" anvil:dom-node="chip"><span class="pf-wx-ic" anvil:dom-node="icon"></span><span anvil:dom-node="words"></span></span></div>

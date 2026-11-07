@@ -1,0 +1,110 @@
+<anvil-form layout="Plan_Friday.Layouts.Shell">
+  <anvil-block slot="content">
+    <div class="ui-wrap pl-wrap">
+      <div class="pl-head">
+        <div>
+          <div class="pf-no" anvil:dom-node="no"></div>
+          <h1 anvil:dom-node="title"></h1>
+          <p anvil:dom-node="lead"></p>
+        </div>
+        <a class="ui-btn" href="#" anvil:name="back_link"><i class="ic ic-back"></i>Back to the party</a>
+        <div class="pf-burst" aria-hidden="true" anvil:name="burst"><span><b>Free</b>no stamp needed</span></div>
+      </div>
+
+      <div anvil:name="ideas_part">
+        <h2 class="pl-ideas-h">Start from the catalogue</h2>
+        <div role="group" aria-label="Party ideas">
+          <anvil-component type="RepeatingPanel" name="ideas_panel" prop:item_template="Plan_Friday.Items.IdeaChip" prop:role='["pl-ideas"]'></anvil-component>
+        </div>
+      </div>
+
+      <div class="pl-form">
+        <section class="pl-box">
+          <h2><span class="n">1</span>Name your party <small>What should the invitation say?</small></h2>
+          <div class="pl-body">
+            <label class="ui-field pl-title"><span>Party name</span>
+              <anvil-component type="TextBox" name="title_box" prop:placeholder="Soup Night Supper"></anvil-component>
+            </label>
+            <div class="ui-field"><span>Pick a picture</span>
+              <div role="group" aria-label="Pick a picture">
+                <anvil-component type="RepeatingPanel" name="covers_panel" prop:item_template="Plan_Friday.Items.CoverPick" prop:role='["pl-covers"]'></anvil-component>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="pl-box">
+          <h2><span class="n">2</span>When could it be? <small>Tick every slot that works for you. Your guests say which suit them, then you lock one in.</small></h2>
+          <div class="pl-body">
+            <div class="ui-row between">
+              <div class="ui-seg pl-weeks" role="group" aria-label="Which weekend">
+                <anvil-component type="RepeatingPanel" name="weeks_panel" prop:item_template="Plan_Friday.Items.PickBtn" prop:role='["contents"]'></anvil-component>
+              </div>
+              <span class="pf-label" anvil:dom-node="count"></span>
+            </div>
+            <anvil-component type="RepeatingPanel" name="days_panel" prop:item_template="Plan_Friday.Items.DayCol" prop:role='["pl-days"]'></anvil-component>
+            <div class="pl-picked" anvil:name="also_part">
+              <span class="pf-label">Also ticked:</span>
+              <anvil-component type="RepeatingPanel" name="also_panel" prop:item_template="Plan_Friday.Items.PickBtn" prop:role='["contents"]'></anvil-component>
+            </div>
+            <anvil-component type="Label" name="answers_note" prop:role='["msg-note"]' prop:visible="false"></anvil-component>
+          </div>
+        </section>
+
+        <section class="pl-box">
+          <h2><span class="n">3</span>The menu <small>What should people bring? Set how many of each you'd like.</small></h2>
+          <div class="pl-body">
+            <anvil-component type="RepeatingPanel" name="menu_panel" prop:item_template="Plan_Friday.Items.MenuRow" prop:role='["pl-menu"]'></anvil-component>
+            <anvil-component type="Label" name="no_menu" prop:role='["muted"]' prop:text="No sections yet. Add some below, or leave it open and guests bring &quot;something else&quot;."></anvil-component>
+            <div class="ui-row pl-addrow">
+              <anvil-component type="TextBox" name="newcat_box" prop:placeholder="Add a section, e.g. Pickles" prop:role='["pl-newcat"]'></anvil-component>
+              <anvil-component type="Button" name="add_button" prop:text="Add" prop:role='["btn", "btn-sm", "ic-plus"]'></anvil-component>
+            </div>
+            <div class="pl-presets">
+              <anvil-component type="RepeatingPanel" name="presets_panel" prop:item_template="Plan_Friday.Items.PickBtn" prop:role='["contents"]'></anvil-component>
+            </div>
+            <p class="ui-hint">Guests can always add things under "Something else".</p>
+          </div>
+        </section>
+
+        <section class="pl-box">
+          <h2><span class="n">4</span>The particulars <small>Where, how, and how many.</small></h2>
+          <div class="pl-body">
+            <div role="group" aria-label="Kind of party">
+              <anvil-component type="RepeatingPanel" name="styles_panel" prop:item_template="Plan_Friday.Items.StyleChoice" prop:role='["pl-styles"]'></anvil-component>
+            </div>
+            <div class="pl-two">
+              <label class="ui-field"><span>Where <em>(optional)</em></span>
+                <anvil-component type="TextBox" name="location_box" prop:placeholder="My place, 3rd floor"></anvil-component>
+              </label>
+              <label class="ui-field"><span>Seats at the table <em>(optional)</em></span>
+                <anvil-component type="TextBox" name="cap_box" prop:type="number" prop:placeholder="No limit"></anvil-component>
+              </label>
+            </div>
+            <div class="pl-two">
+              <div class="ui-field"><label class="pl-town-l" anvil:dom-node="town_label">Town for the weather check <em>(optional)</em></label>
+                <div class="ui-row pl-town">
+                  <anvil-component type="TextBox" name="town_box" prop:placeholder="Montréal"></anvil-component>
+                  <anvil-component type="Button" name="wx_button" prop:text="Check" prop:role='["btn", "btn-sm", "ic-sun"]'></anvil-component>
+                </div>
+                <anvil-component type="Label" name="wx_result" prop:role='["ui-hint"]' prop:text="Just the town name. We show the forecast for each slot."></anvil-component>
+              </div>
+              <div class="pl-outdoors">
+                <anvil-component type="CheckBox" name="outdoors_box" prop:text="It's outdoors (garden, rooftop, park). The weather check flags the driest day and plans for rain."></anvil-component>
+              </div>
+            </div>
+            <label class="ui-field"><span>A note for your guests <em>(optional)</em></span>
+              <anvil-component type="TextArea" name="blurb_box" prop:placeholder="Come hungry. Bring a sweater, the garden gets cold." prop:height="90"></anvil-component>
+            </label>
+          </div>
+        </section>
+
+        <anvil-component type="Label" name="msg" prop:role='["msg-error"]' prop:visible="false"></anvil-component>
+        <div class="pl-submit">
+          <p anvil:dom-node="submit_note"></p>
+          <anvil-component type="Button" name="submit_button" prop:text="Send my order" prop:role='["btn", "btn-primary", "btn-lg"]'></anvil-component>
+        </div>
+      </div>
+    </div>
+  </anvil-block>
+</anvil-form>

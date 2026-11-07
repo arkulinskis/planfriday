@@ -1,0 +1,21 @@
+<div class="idea-host">
+  <article class="pf-idea ct-item">
+    <div class="pf-cover" anvil:name="cover_box">
+      <span class="ui-badge ct-tagline" anvil:dom-node="tag"></span>
+      <anvil-component type="Plan_Friday.Components.Art" name="art" bind:cover="self.item['cover']" bind:label="self.item['name']"></anvil-component>
+    </div>
+    <div class="in">
+      <div class="pf-no" anvil:dom-node="no"></div>
+      <h3 anvil:dom-node="name"></h3>
+      <p anvil:dom-node="blurb"></p>
+      <div class="spec">
+        <div class="pf-leader"><span class="a">Serves</span><span class="dots" aria-hidden="true"></span><span class="b" anvil:dom-node="serves"></span></div>
+        <div class="pf-leader"><span class="a">Effort</span><span class="dots" aria-hidden="true"></span><span class="b" anvil:dom-node="effort"></span></div>
+        <div class="pf-leader"><span class="a">Style</span><span class="dots" aria-hidden="true"></span><span class="b" anvil:dom-node="style"></span></div>
+        <div class="pf-leader"><span class="a">Best on</span><span class="dots" aria-hidden="true"></span><span class="b" anvil:dom-node="best"></span></div>
+      </div>
+      <div class="menu"><b>Menu:</b> <span anvil:dom-node="menu"></span></div>
+      <div class="foot"><span class="price">Free!</span><a class="ui-btn primary sm" anvil:dom-node="order" href="#new">Order this party</a></div>
+    </div>
+  </article>
+</div>

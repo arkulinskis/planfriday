@@ -1,0 +1,33 @@
+<div class="ui pt-dlg">
+  <div class="pf-label" anvil:dom-node="party"></div>
+  <h2 class="dlg-h">What are you bringing?</h2>
+  <div class="ui-stack">
+    <label class="ui-field"><span>Section</span>
+      <anvil-component type="DropDown" name="cat_drop"></anvil-component>
+    </label>
+    <label class="ui-field"><span>The dish</span>
+      <span class="ui-row pt-dishname">
+        <anvil-component type="TextBox" name="name_box"></anvil-component>
+        <anvil-component type="Button" name="dice_button" prop:text="Suggest a dish" prop:tooltip="Need an idea?" prop:role='["btn", "btn-icon", "ic-dice"]'></anvil-component>
+      </span>
+    </label>
+    <div class="ui-row top pt-dishmore">
+      <label class="ui-field pt-serves"><span>Serves</span>
+        <anvil-component type="TextBox" name="serves_box" prop:type="number" prop:placeholder="6"></anvil-component>
+      </label>
+      <label class="ui-field pt-dishnote"><span>Note <em>(optional)</em></span>
+        <anvil-component type="TextBox" name="note_box" prop:placeholder="Needs the oven for 10 min"></anvil-component>
+      </label>
+    </div>
+    <div class="ui-field"><span>Good to know</span>
+      <div class="pt-diets" role="group" aria-label="Good to know">
+        <anvil-component type="RepeatingPanel" name="tags_panel" prop:item_template="Plan_Friday.Items.PickBtn" prop:role='["contents"]'></anvil-component>
+      </div>
+    </div>
+    <anvil-component type="Label" name="message" prop:role='["msg-error"]' prop:visible="false"></anvil-component>
+    <div class="ui-row end">
+      <anvil-component type="Button" name="cancel_button" prop:text="Cancel" prop:role='["btn", "btn-ghost"]'></anvil-component>
+      <anvil-component type="Button" name="save_button" prop:text="Put it on the menu" prop:role='["btn", "btn-primary", "ic-check"]'></anvil-component>
+    </div>
+  </div>
+</div>

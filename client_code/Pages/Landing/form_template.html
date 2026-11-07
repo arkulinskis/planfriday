@@ -1,0 +1,151 @@
+<anvil-form layout="Plan_Friday.Layouts.Shell">
+  <anvil-block slot="content">
+    <div class="lp">
+      <section class="lp-hero">
+        <div class="ui-wrap">
+          <div class="lp-cover">
+            <div class="mast"><b>The Weekend Catalogue</b><span>No. 1 · Friday Edition</span><span>Price: free</span></div>
+            <div class="body">
+              <div>
+                <h1>Plan it on Friday. <em>Feast</em>&nbsp;on <span class="lp-roll" aria-hidden="true"><span class="pf-script">soup night.</span><span class="pf-script">taco Saturday.</span><span class="pf-script">a Sunday roast.</span><span class="pf-script">pancake brunch.</span><span class="pf-script">soup night.</span></span><span class="lp-sr">the weekend.</span></h1>
+                <p class="lp-lead">Plan Friday is the quickest way to throw a last-minute dinner party. Make a party page, send one link, and your friends say which day suits them and what they're bringing: the soup, the salad, the dessert. No group-chat chaos, and no accounts for guests.</p>
+                <div class="lp-cta" anvil:name="guest_cta">
+                  <a class="ui-btn primary lg" href="#auth/signup">Host a party, it's free <i class="ic ic-arrow"></i></a>
+                  <a class="ui-btn lg" href="#p/sample">See a sample party</a>
+                </div>
+                <div class="lp-cta" anvil:name="member_cta">
+                  <a class="ui-btn primary lg" href="#home">Open your weekend <i class="ic ic-arrow"></i></a>
+                  <a class="ui-btn lg" href="#new">Host a party</a>
+                </div>
+                <div class="lp-proof"><span><i class="ic ic-check"></i>Guests need no account</span><span><i class="ic ic-check"></i>Ready in two minutes</span><span><i class="ic ic-check"></i>Made for phones</span></div>
+              </div>
+              <div class="lp-plate" aria-hidden="true">
+                <div class="lp-dish"><small>Soup Night</small><anvil-component type="Plan_Friday.Components.Art" name="dish1" prop:cover="soup" prop:label="-"></anvil-component></div>
+                <div class="lp-dish"><small>Taco Saturday</small><anvil-component type="Plan_Friday.Components.Art" name="dish2" prop:cover="tacos" prop:label="-"></anvil-component></div>
+                <div class="lp-dish"><small>Sunday Roast</small><anvil-component type="Plan_Friday.Components.Art" name="dish3" prop:cover="roast" prop:label="-"></anvil-component></div>
+                <div class="lp-dish"><small>Pancake Brunch</small><anvil-component type="Plan_Friday.Components.Art" name="dish4" prop:cover="pancakes" prop:label="-"></anvil-component></div>
+                <div class="pf-burst red"><span><b>Free!</b>this week</span></div>
+                <div class="lp-slip"><div class="pf-label">Order slip · Soup Night</div>
+                  <div class="rowx"><b anvil:dom-node="slip_day">Sat · Dinner</b><span class="ok">✓ 5 free</span></div>
+                  <div class="rowx"><span>Tomato soup</span><span class="muted small">Maya</span></div>
+                  <div class="rowx"><span>Apple crumble</span><span class="muted small">Lou</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="foot"><span>Soups · Tacos · Roasts · Brunch</span><span>Order by Friday · Feast by Saturday</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-section lp-device-sec" anvil:name="device_sec">
+        <div class="ui-wrap">
+          <div class="pf-coupon"><span class="pf-scissors"><i class="ic ic-scissors"></i></span>
+            <h2 class="lp-device-h">Back for your party? Opened on this device</h2>
+            <anvil-component type="RepeatingPanel" name="device_panel" prop:item_template="Plan_Friday.Items.TicketLink" prop:role='["lp-device"]'></anvil-component>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-section ytf" id="watch">
+        <div class="ui-wrap">
+          <div class="ytf-in">
+            <div class="ytf-copy">
+              <h2>See Plan Friday in about a minute</h2>
+              <p>A short video tour of what Plan Friday does and how it works.</p>
+              <a class="ytf-link" href="https://www.youtube.com/watch?v=d7Gj5GCfeOc" target="_blank" rel="noopener"><svg viewBox="0 0 28 20" width="20" height="14" aria-hidden="true"><rect width="28" height="20" rx="5" fill="#FF0033"/><path d="M11.2 5.8v8.4l7.3-4.2z" fill="#fff"/></svg> Watch on YouTube &#8599;</a>
+            </div>
+            <div>
+              <div class="ytf-frame" anvil:dom-node="yt_frame">
+                <button type="button" class="ytf-cover" anvil:dom-node="yt_cover" aria-label="Play the Plan Friday video (1:08)">
+                  <img src="_/theme/yt-cover.jpg" alt="" loading="lazy" decoding="async" width="960" height="540">
+                  <span class="ytf-play" aria-hidden="true"><svg viewBox="0 0 68 48" width="68" height="48"><path d="M66.5 7.7a8.5 8.5 0 0 0-6-6C55.3.3 34 .3 34 .3s-21.3 0-26.5 1.4a8.5 8.5 0 0 0-6 6C.1 13 .1 24 .1 24s0 11 1.4 16.3a8.5 8.5 0 0 0 6 6c5.2 1.4 26.5 1.4 26.5 1.4s21.3 0 26.5-1.4a8.5 8.5 0 0 0 6-6C67.9 35 67.9 24 67.9 24s0-11-1.4-16.3z" fill="#FF0033"/><path d="M45 24 27 14v20z" fill="#fff"/></svg></span>
+                  <span class="ytf-len">1:08</span>
+                </button>
+              </div>
+              <p class="ytf-note">The video loads from YouTube when you press play.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-section" id="how">
+        <div class="ui-wrap">
+          <div class="lp-head"><h2>How it works</h2><p>From "we should have people over" to a full table, before the weekend starts.</p></div>
+          <div class="lp-steps">
+            <div class="ui-card lp-step"><span class="pf-label">Two minutes</span><h3>Order from the catalogue</h3><p class="muted">Pick a party idea (Soup Night, Taco Saturday, Pancake Brunch...) or start blank. Tick the weekend slots that could work.</p></div>
+            <div class="ui-card lp-step"><span class="pf-label">Friday afternoon</span><h3>Send one link</h3><p class="muted">Text it, WhatsApp it, email it. Friends open it, put their name down, tick the days they're free and pick a dish.</p></div>
+            <div class="ui-card lp-step"><span class="pf-label">Friday night</span><h3>Lock in the day</h3><p class="muted">The best day rises to the top. Lock it in, everyone adds it to their calendar, and the menu fills itself.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-section">
+        <div class="ui-wrap">
+          <div class="lp-two">
+            <div class="ui-card lp-aud">
+              <h3>For the host: you make the page</h3>
+              <ul>
+                <li><i class="ic ic-check"></i><span>A party page with your picture, your note, your address</span></li>
+                <li><i class="ic ic-check"></i><span>Slots across Friday, Saturday and Sunday (this weekend or next)</span></li>
+                <li><i class="ic ic-check"></i><span>A menu by section (soup, mains, dessert, drinks...) with how many of each you want</span></li>
+                <li><i class="ic ic-check"></i><span>Lock in the best day, close RSVPs, set a seat limit</span></li>
+                <li><i class="ic ic-check"></i><span>A weather check for every slot, a printable order sheet, and "run it again" for next week</span></li>
+              </ul>
+              <a class="ui-btn primary" href="#auth/signup" anvil:name="host_signup">Create a free host account</a>
+              <a class="ui-btn primary" href="#new" anvil:name="host_new">Host a party</a>
+            </div>
+            <div class="pf-coupon lp-aud"><span class="pf-scissors"><i class="ic ic-scissors"></i></span>
+              <h3>For the guests: got a link from a friend?</h3>
+              <ul>
+                <li><i class="ic ic-check"></i><span>Open the link. No app, no account, no password</span></li>
+                <li><i class="ic ic-check"></i><span>Put your name down and RSVP, with a +1 or two</span></li>
+                <li><i class="ic ic-check"></i><span>Tick ✓ free, ~ maybe or ✕ can't for each day</span></li>
+                <li><i class="ic ic-check"></i><span>Say what you're bringing, or let the dice suggest something</span></li>
+                <li><i class="ic ic-check"></i><span>Note your diet, leave a note for the host, add the day to your calendar</span></li>
+              </ul>
+              <a class="ui-btn" href="#p/sample">See what guests see</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-section">
+        <div class="ui-wrap">
+          <div class="lp-head"><h2>Everything for a full table</h2></div>
+          <div class="lp-feats">
+            <div class="lp-feat"><span class="no">No. 1F</span><h3><i class="ic ic-calendar"></i>Best day wins</h3><p>Everyone ticks the slots that suit them. The one most people can make gets a "best bet" sticker.</p></div>
+            <div class="lp-feat"><span class="no">No. 2F</span><h3><i class="ic ic-utensils"></i>A menu that adds up</h3><p>Sections with how many you need. Everyone sees what's covered and what's still wanted.</p></div>
+            <div class="lp-feat"><span class="no">No. 3F</span><h3><i class="ic ic-heart"></i>Diets, sorted</h3><p>Guests note allergies and diets. Dishes carry tags, and a nut allergy next to walnuts gets flagged.</p></div>
+            <div class="lp-feat"><span class="no">No. 4F</span><h3><i class="ic ic-mail"></i>Letters to the host</h3><p>A guestbook on every party, for questions, jokes, parking and "running 10 minutes late".</p></div>
+            <div class="lp-feat"><span class="no">No. 5F</span><h3><i class="ic ic-print"></i>The order sheet</h3><p>Who brings what, on one printable page with tick boxes. Stick it on the fridge.</p></div>
+            <div class="lp-feat"><span class="no">No. 6F</span><h3><i class="ic ic-sun"></i>Weather check</h3><p>A forecast for every slot, with advice: "perfect patio weather" or "rain plan needed". Outdoor parties get the driest day flagged.</p></div>
+          </div>
+          <p class="lp-browse"><a class="ui-btn" href="#catalogue"><i class="ic ic-grid"></i>Browse 13 party ideas</a></p>
+        </div>
+      </section>
+
+      <section class="lp-section">
+        <div class="ui-wrap">
+          <div class="lp-head"><h2>Questions &amp; answers</h2></div>
+          <div class="lp-faq">
+            <details><summary>Do my guests need an account?</summary><p>No. They open your link, type their name, and they're on the list. Their browser remembers them. Only the host needs an account (free), so every party has an owner.</p></details>
+            <details><summary>Can it really be last minute?</summary><p>That's the whole idea. Make the party on Friday morning, send the link at lunch, lock in Saturday dinner by the evening. Your friends see changes right away.</p></details>
+            <details><summary>Where does the weather come from?</summary><p>From Open-Meteo, a free weather service. Our server asks it for the forecast in the town the host typed, so your browser never contacts it, and the forecast is refreshed every hour.</p></details>
+            <details><summary>What if nobody is free?</summary><p>Edit the party and add more slots, or tick next weekend too. Answers people already gave are kept.</p></details>
+            <details><summary>Who can see my party?</summary><p>Anyone with the link. It's long and random, so nobody finds it by chance. Guests see first names, RSVPs, dishes and notes, never emails. You can close RSVPs, remove someone, or delete the party at any time.</p></details>
+            <details><summary>Is it free?</summary><p>Yes. No ads, no fees, nothing to install. It works in any browser, and you can add it to your phone's home screen.</p></details>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-section">
+        <div class="ui-wrap">
+          <div class="lp-band">
+            <div><h2 anvil:dom-node="band_title">It's nearly Friday.</h2><p>Start the party page now and you'll have a plan by tonight.</p></div>
+            <a class="ui-btn lg" href="#auth/signup" anvil:dom-node="band_link">Host a party, it's free</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </anvil-block>
+</anvil-form>

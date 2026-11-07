@@ -1,0 +1,23 @@
+<div class="slot-row-host">
+  <div class="pt-slot" anvil:name="row">
+    <span class="pf-burst sm" aria-hidden="true" anvil:name="best_burst"><span><b>Best</b>bet</span></span>
+    <div class="day"><b anvil:dom-node="day"></b><span anvil:dom-node="date"></span></div>
+    <div class="who">
+      <div class="t"><span anvil:dom-node="part"></span> <small anvil:dom-node="sub"></small></div>
+      <div class="wxrow" anvil:name="wx_row">
+        <anvil-component type="Plan_Friday.Components.WxChip" name="wx" bind:forecast="self.item.get('wx')"></anvil-component>
+        <span class="ui-badge warn" anvil:name="driest"><i class="ic ic-sun"></i>Driest</span>
+      </div>
+      <anvil-component type="RepeatingPanel" name="chips_panel" prop:item_template="Plan_Friday.Items.Chip" prop:role='["pf-chips"]'></anvil-component>
+    </div>
+    <div class="mine">
+      <div class="pt-ans-group" role="group" anvil:name="ans_part">
+        <anvil-component type="Button" name="a_yes" prop:text="✓" prop:role='["ans", "ans-yes"]'></anvil-component>
+        <anvil-component type="Button" name="a_maybe" prop:text="~" prop:role='["ans", "ans-maybe"]'></anvil-component>
+        <anvil-component type="Button" name="a_no" prop:text="✕" prop:role='["ans", "ans-no"]'></anvil-component>
+      </div>
+      <span class="pf-stamp good" anvil:name="on_stamp">It's on</span>
+      <anvil-component type="Button" name="lock_button" prop:text="Lock" prop:role='["btn", "btn-sm", "ic-lock", "pt-lock"]'></anvil-component>
+    </div>
+  </div>
+</div>
