@@ -7,7 +7,7 @@ around them with an offset instead of whole files.
 
 **What it is:** Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they're bringing, and you lock in the best day. No guest accounts.
 **Live:** https://planfriday.com · **Repo:** github.com/arkulinskis/planfriday · **Layout:** native Anvil Forms · **Deploy:** master
-**Guide** (workflow, design rules, product knowledge): `planfriday/.claude/skills/planfriday/SKILL.md`
+**Guide** (workflow, design rules, product knowledge): `.claude/skills/planfriday/SKILL.md`
 
 ## How to change it
 
