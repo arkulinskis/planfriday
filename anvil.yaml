@@ -430,10 +430,9 @@ db_schema:
     server: full
     title: Users
 metadata:
-  description: 'Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they''re
-    bringing, and you lock in the best day. No guest accounts.'
-  logo_img: asset:icon-512.png
-  title: 'Plan Friday: plan a last-minute weekend dinner party'
+  description: "Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they're bringing, and you lock in the best day. No guest accounts."
+  logo_img: "asset:icon-512.png"
+  title: "Plan Friday: plan a last-minute weekend dinner party"
 name: Plan Friday
 native_deps:
   head_html: |
@@ -457,7 +456,7 @@ native_deps:
     <meta name="twitter:description" content="Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they&#x27;re bringing, and you lock in the best day. No guest accounts.">
     <meta name="twitter:image" content="https://planfriday.com/_/theme/og-image.png">
     <link rel="alternate" type="text/plain" title="Plan Friday for AI assistants" href="https://planfriday.com/llms.txt">
-    <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebApplication", "@id": "https://planfriday.com/#app", "name": "Plan Friday", "url": "https://planfriday.com/", "description": "Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they're bringing, and you lock in the best day. No guest accounts.", "image": "https://planfriday.com/_/theme/og-image.png", "inLanguage": "en", "publisher": {"@id": "https://arkvital.com/#org"}, "keywords": "dinner party planner, potluck sign up, weekend plans with friends, party RSVP link, what to bring list, potluck organizer, dinner party ideas, group scheduling, host a dinner party", "applicationCategory": "LifestyleApplication", "operatingSystem": "Any (web browser)", "browserRequirements": "Requires JavaScript and a modern web browser", "featureList": ["One link for the whole party; guests need no account", "Guests pick the weekend slots that suit them", "Who brings what: soup, salad, dessert and more", "Diets, plus-ones and notes on every RSVP", "13 ready-made party ideas with suggested menus", "Add the locked-in day to your calendar"], "audience": {"@type": "Audience", "audienceType": "Hosts who want friends over this weekend"}}, {"@type": "WebSite", "@id": "https://planfriday.com/#site", "url": "https://planfriday.com/", "name": "Plan Friday", "publisher": {"@id": "https://arkvital.com/#org"}}, {"@type": "Organization", "@id": "https://arkvital.com/#org", "name": "Arkvital", "url": "https://arkvital.com", "email": "arkvital@outlook.com", "address": {"@type": "PostalAddress", "addressLocality": "Montreal", "addressRegion": "QC", "addressCountry": "CA"}}]}</script>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Service", "@id": "https://planfriday.com/#app", "name": "Plan Friday", "url": "https://planfriday.com/", "description": "Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they're bringing, and you lock in the best day. No guest accounts.", "image": "https://planfriday.com/_/theme/og-image.png", "serviceType": "On Friday, send one link. Friends pick the day and what they bring.", "provider": {"@id": "https://arkvital.com/#org"}, "areaServed": "Worldwide", "availableChannel": {"@type": "ServiceChannel", "serviceUrl": "https://planfriday.com/", "name": "Web browser"}, "availableLanguage": "en", "audience": {"@type": "Audience", "audienceType": "Hosts who want friends over this weekend"}}, {"@type": "WebSite", "@id": "https://planfriday.com/#site", "url": "https://planfriday.com/", "name": "Plan Friday", "publisher": {"@id": "https://arkvital.com/#org"}}, {"@type": "Organization", "@id": "https://arkvital.com/#org", "name": "Arkvital", "url": "https://arkvital.com", "email": "arkvital@outlook.com", "address": {"@type": "PostalAddress", "addressLocality": "Montreal", "addressRegion": "QC", "addressCountry": "CA"}}]}</script>
     <!-- seo:end -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#c62a1f">
