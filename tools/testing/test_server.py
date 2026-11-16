@@ -24,6 +24,8 @@ os.environ["ANVIL_APP_YAML"] = str(PROJECT / "anvil.yaml")  # the mock's tables 
 sys.path[:0] = [str(HERE / "mock"), str(_tmp)]
 import anvil.server  # noqa: E402
 import anvil.users  # noqa: E402
+import anvil.secrets  # noqa: E402
+anvil.secrets.SECRETS["admin_emails"] = "admin@example.com"  # the App Secret, faked
 from anvil.tables import app_tables as T  # noqa: E402
 import anvil.http  # noqa: E402
 sys.path.insert(0, str(HERE))
@@ -68,7 +70,7 @@ def person(email, name=None, **kw):
 
 
 # ---------------------------------------------------------------------------------- accounts
-admin = person("arkulinskis@gmail.com", "The Admin")
+admin = person("admin@example.com", "The Admin")
 ana = person("ana@example.com", "Ana")
 bob = person("bob@example.com")
 
@@ -359,7 +361,7 @@ if "legal_server" in M:
 
 # ---------------------------------------------------------------------------------- every callable is covered by a permission check
 # A callable that changes data without require_user / a C.require_* check is a security hole. List the public ones here.
-PUBLIC = {"session_ping", "get_me", "submit_feedback", "legal_state", "legal_accept",
+PUBLIC = {"log_client_error", "session_ping", "get_me", "submit_feedback", "legal_state", "legal_accept",
           # the party link works without an account (Guests.py checks the link and the guest's secret)
           "party_view", "guest_join", "guest_save", "guest_forget", "dish_add", "dish_remove", "comment_add", "comment_remove"}
 for name, (f, need) in sorted(anvil.server.CALLABLES.items()):

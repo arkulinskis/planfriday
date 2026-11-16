@@ -47,7 +47,7 @@ around them with an offset instead of whole files.
   `.anvil-role-<x> > div`, seg/step/link-btn/ans/rsvp roles). The weather box icon class is `pt-wx-ic` (not `.ic`:
   that is the icon-mask class).
 - **Tests**: `tools/ui/smoke.js` opens every address signed out, as a new member (who orders Taco Saturday so their own
-  #p, #sheet and #edit open too) and as admin (arkulinskis@gmail.com is in ADMIN_EMAILS; fixed test password, local
+  #p, #sheet and #edit open too) and as admin (your admin email (App Secret `admin_emails`) is in ADMIN_EMAILS; fixed test password, local
   Docker DB only). Locally the weather says "opens two weeks ahead": the App Server container has no internet.
 <!-- /NOTES -->
 
