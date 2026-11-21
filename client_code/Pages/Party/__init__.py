@@ -33,6 +33,10 @@ class Party(PartyTemplate):
         self.notes_panel.add_event_handler("x-delnote", self._delnote)
         self.groups_panel.add_event_handler("x-kick", self._kick)
         self.diets_panel.add_event_handler("x-pick", self._diet)
+        self.kitty_panel.add_event_handler("x-delkitty", self._delkitty)
+        self.transfers_panel.add_event_handler("x-paid", self._paid)
+        self._nudge_auto, self._nudge_mode, self._nudge_open = "", "", False
+        state.set_control_attr(self.nudge_box, "aria-label", "Your message to the group")
         state.set_control_attr(self.link_box, "readonly", "")
         state.set_control_attr(self.link_box, "aria-label", "Party link")
         state.set_control_attr(self.join_name, "autocomplete", "given-name")
@@ -118,9 +122,11 @@ class Party(PartyTemplate):
         self.sample_signup.visible = not signed_in
         self._hero(p, st, past)
         self._share(p)
+        self._nudge()
         self._slip(p, me)
         self._when(p, st, me)
         self._menu(p, st)
+        self._kitty(p, me)
         self._book(me)
         self._guests(p, st)
         self._table(st)
@@ -141,6 +147,11 @@ class Party(PartyTemplate):
         d["meta_seats"].textContent = state.plural(st["heads"], "seat") + " taken" + (" of %d" % p["cap"] if p.get("cap") else "")
         self.meta_out.visible = bool(p.get("outdoors"))
         self.blurb.text, self.blurb.visible = p.get("blurb") or "", bool(p.get("blurb"))
+        money = p.get("money")
+        self.chip_part.visible = bool(money)
+        if money:  # on the invitation itself, before anyone RSVPs (money talk belongs here, never after dinner)
+            d["chip_amt"].textContent = pf.cash(money["amount"], money.get("currency"))
+            d["chip_for"].textContent = money.get("note") or ""
         host = self.V.get("is_host")
         self.when_on.visible = bool(p.get("chosen"))
         self.when_tbd.visible = not p.get("chosen")
@@ -221,9 +232,19 @@ class Party(PartyTemplate):
         self.status_button.role = ["btn", "btn-sm", "ic-check" if closed else "ic-x"]
         self.delete_button.visible = not demo
 
+    def _due(self, p):
+        """The "answer by" stamp in the join slip and over the slots: 'Answer by Friday 6 pm · 3 h left', then
+        'Time's up: Ana is choosing the day' (answers still count). Nothing without a deadline or once the day is set."""
+        text, over = pf.deadline_text(p), bool((pf.deadline(p) or {}).get("over"))
+        for box, node in ((self.due_slip, "due_slip_t"), (self.due_when, "due_when_t")):
+            box.visible = bool(text)
+            box.classes["over"] = over
+            self.dom_nodes[node].textContent = text
+
     def _slip(self, p, me):
         self.join_slip.visible = not me
         self.mine_slip.visible = bool(me)
+        self._due(p)
         if not me:
             blocked = "This is a sample party, so the guest list is just for show." if p.get("demo") else \
                 "The host has closed RSVPs for this party." if p["status"] == "closed" else ""
@@ -311,6 +332,151 @@ class Party(PartyTemplate):
                           "empty": "Nobody yet. Could it be you?" if m["wanted"] else "Anything else you'd like to bring.",
                           "open": open_, "bring": "I'll bring " + ("something" if c == "Something else" else "one")})
         self.cats_panel.items = items
+
+    # ---------------------------------------------------------------- the kitty
+    def _kitty(self, p, me):
+        """The kitty under the menu: what people spent, the fair split by heads, where everyone stands and the
+        fewest payments to settle up (Guests.kitty_math). Hidden while the live database has no kitty table."""
+        K, d = self.V.get("kitty"), self.dom_nodes
+        self.kitty_sec.visible = K is not None
+        if K is None:
+            return
+        cur, demo, host = pf.currency(p), bool(p.get("demo")), bool(self.V.get("is_host"))
+        rows = [r for r in K["rows"]]
+        spent = [r for r in rows if r["kind"] == "spent"]
+        chip = pf.chip_in_text(p)
+        self.kitty_chip.visible = bool(chip)
+        d["kitty_chip_t"].textContent = (chip + ". Use the kitty for what people actually spent.") if chip else ""
+        d["kitty_count"].textContent = (pf.cents_cash(K["total"], cur) + " spent") if spent else "Split it fairly"
+        self.kitty_empty.visible = not rows
+        self.kitty_sum.visible = bool(spent)
+        if spent:
+            if K["heads"]:
+                d["kitty_big"].textContent = "Total %s ÷ %s = %s each" % (
+                    pf.cents_cash(K["total"], cur), state.plural(K["heads"], "person", "people"),
+                    pf.cash(K["total"] / 100.0 / K["heads"], cur))
+                d["kitty_small"].textContent = "Everyone who said yes pays a share. Extra people count in their guest's share."
+            else:
+                d["kitty_big"].textContent = "Total " + pf.cents_cash(K["total"], cur)
+                d["kitty_small"].textContent = "Nobody has said yes yet, so there's nobody to split it with."
+        self.kitty_panel.items = [{"id": r["id"], "kind": r["kind"], "what": r["what"], "by": r["by"], "to": r["to"],
+                                   "amount": pf.cents_cash(r["cents"], cur), "can_remove": bool(r.get("can_remove")) and not demo}
+                                  for r in rows]
+        self.kitty_panel.visible = bool(rows)
+        self.spend_part.visible = not demo  # a click before joining scrolls to the order slip (spend_button_click)
+        d["spend_hint"].textContent = "" if me else "Put your name on the guest list first."
+        self.kitty_more.visible = bool(spent)
+        bals = []
+        for b in K["balances"]:
+            if not b["spent"] and not b["share"] and not b["balance"]:
+                continue
+            who = b["name"] + (" (+%d)" % (b["heads"] - 1) if b.get("heads", 0) > 1 else "")
+            bal = b["balance"]
+            words = ("is owed " + pf.cents_cash(bal, cur)) if bal > 0 else ("owes " + pf.cents_cash(bal, cur)) if bal < 0 else "square"
+            bals.append({"a": who, "b": words})
+        self.kitty_bal_panel.items = bals
+        my_id = me["id"] if me else None
+        self.transfers_panel.items = [{"from_id": tr["from_id"], "from": tr["from"], "to_id": tr["to_id"], "to": tr["to"],
+                                       "cents": tr["cents"], "amount": pf.cents_cash(tr["cents"], cur),
+                                       "can_mark": not demo and (host or (my_id is not None and my_id in (tr["from_id"], tr["to_id"])))}
+                                      for tr in K["transfers"]]
+        self.transfers_panel.visible = bool(K["transfers"])
+        self.kitty_square.visible = not K["transfers"]
+
+    @handle("spend_button", "click")
+    def spend_button_click(self, **event_args):
+        if not self.V.get("me"):
+            self._need_name()
+            return
+        from ...Dialogs.Spend import Spend
+        got = alert(Spend(party=self.V["party"]), buttons=[], role="app-dialog", dismissible=True)
+        if got and self._call("kitty_add", got["what"], got["amount"]):
+            state.toast("In the kitty. The split is updated.", "ok")
+
+    def _delkitty(self, id, paid=False, **e):
+        title = "Undo this payment?" if paid else "Take it out of the kitty?"
+        if confirm("", title=title, buttons=[("Cancel", False), ("Undo" if paid else "Remove", True)], role="app-dialog"):
+            self._call("kitty_remove", id)
+
+    def _paid(self, from_id, to_id, cents, words="", **e):
+        if confirm("It moves to the kitty as paid back, and the settle-up list updates. Plan Friday doesn't move any money.",
+                   title="Mark %s as paid?" % words, buttons=[("Cancel", False), ("Mark as paid", True)], role="app-dialog"):
+            if self._call("kitty_paid", from_id, to_id, cents / 100.0):
+                state.toast("Marked as paid. Thanks for settling up!", "ok")
+            else:
+                self._load(True)
+
+    # ---------------------------------------------------------------- the nudge kit (host only)
+    def _nudge(self, open_=False):
+        """The "Nudge the group" coupon in the share box: who hasn't ticked a day, who's still on maybe, what's still
+        wanted, and a ready-made group-chat message that follows the party (ask / time's up / it's on). The host's own
+        edits to the message stay until the party moves on to the next stage. Plan Friday sends nothing itself."""
+        V = self.V
+        p = V["party"]
+        show = bool(V.get("is_host")) and not p.get("demo")
+        self.nudge_bar.visible = show
+        if not show:
+            self.nudge_part.visible = False
+            return
+        lists, mode = pf.nudge_lists(V), pf.nudge_mode(V)
+        rows = []
+        if not p.get("chosen"):
+            rows.append({"a": "Haven't ticked a day", "b": pf.names_text(lists["unticked"]) or "Nobody. Nice!"})
+        rows.append({"a": "Still on maybe", "b": pf.names_text(lists["maybe"]) or "Nobody"})
+        rows.append({"a": "Still wanted", "b": pf.names_text(lists["wanted"]) or "Nothing. The menu is covered"})
+        self.nudge_panel.items = rows
+        self.dom_nodes["nudge_mode"].textContent = {"on": "It's on", "late": "Time's up"}.get(mode, "Before the day")
+        hint = []
+        if not p.get("chosen") and lists["unticked"]:
+            hint.append("%d haven't ticked a day" % len(lists["unticked"]))
+        if lists["maybe"]:
+            hint.append("%d on maybe" % len(lists["maybe"]))
+        if lists["wanted"]:
+            hint.append(state.plural(len(lists["wanted"]), "gap") + " on the menu")
+        self.dom_nodes["nudge_hint"].textContent = ("Tell everyone it's on." if mode == "on" else
+                                                    " · ".join(hint) if hint else "Everyone's answered.")
+        text = pf.nudge_text(V, mode)
+        if (self.nudge_box.text or "") in ("", self._nudge_auto) or mode != self._nudge_mode:
+            self.nudge_box.text = text
+        self._nudge_auto, self._nudge_mode = text, mode
+        self.nudge_share.visible = pf.can_share()
+        self._nudge_links()
+        if open_:
+            self._nudge_open = True
+        self.nudge_part.visible = self._nudge_open
+        state.set_control_attr(self.nudge_button, "aria-expanded", "true" if self._nudge_open else "false")
+        if open_:
+            anvil.js.get_dom_node(self.nudge_part).scrollIntoView({"behavior": "smooth", "block": "center"})
+
+    def _nudge_links(self):
+        enc, msg = window.encodeURIComponent, self.nudge_box.text or ""
+        self.dom_nodes["nudge_wa"].setAttribute("href", "https://wa.me/?text=" + str(enc(msg)))
+        self.dom_nodes["nudge_sms"].setAttribute("href", "sms:?&body=" + str(enc(msg)))
+
+    @handle("nudge_button", "click")
+    def nudge_button_click(self, **event_args):
+        self._nudge_open = not self._nudge_open
+        self._nudge(open_=self._nudge_open)
+
+    @handle("nudge_box", "change")
+    def nudge_box_change(self, **event_args):
+        self._nudge_links()
+
+    @handle("nudge_reset", "click")
+    def nudge_reset_click(self, **event_args):
+        self.nudge_box.text = self._nudge_auto = pf.nudge_text(self.V)
+        self._nudge_links()
+
+    @handle("nudge_copy", "click")
+    def nudge_copy_click(self, **event_args):
+        ok = pf.copy(self.nudge_box.text or "")
+        state.toast("Copied. Paste it into your group chat!" if ok else "Select the message and copy it by hand.", "ok" if ok else "error")
+
+    @handle("nudge_share", "click")
+    def nudge_share_click(self, **event_args):
+        p = self.V["party"]
+        url = pf.party_url(p["token"])
+        pf.share(p["title"], (self.nudge_box.text or "").replace(url, "").strip(), url)
 
     def _book(self, me):
         V = self.V
@@ -536,7 +702,8 @@ class Party(PartyTemplate):
         pick = alert(LockDay(party=V["party"], stats=V["stats"], pick=key), buttons=[], role="app-dialog", dismissible=True)
         if pick and self._host("lock_slot", pick[0], pick[1]):
             pf.confetti()
-            state.toast("It's on! Your guests can see the day now.", "ok")
+            state.toast("It's on! Now tell the group: your message is ready.", "ok")
+            self._nudge(open_=True)  # the coupon opens on the "It's on!" message
 
     def _lock_key(self, key, **e):
         self._lock(key)

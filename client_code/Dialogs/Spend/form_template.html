@@ -1,0 +1,21 @@
+<div class="ui pt-dlg">
+  <div class="pf-label" anvil:dom-node="party"></div>
+  <h2 class="dlg-h">I spent…</h2>
+  <p class="muted">Something you paid for the whole party. Everyone coming pays an equal share, and +1s count.</p>
+  <div class="ui-stack">
+    <label class="ui-field"><span>What for</span>
+      <anvil-component type="TextBox" name="what_box" prop:placeholder="Wine, ice, the roast…"></anvil-component>
+    </label>
+    <div class="ui-field"><span class="pt-spend-l" anvil:dom-node="amount_label">How much</span>
+      <div class="ui-row pt-spend-amt">
+        <b class="cur" anvil:dom-node="cur" aria-hidden="true"></b>
+        <anvil-component type="TextBox" name="amount_box" prop:type="number" prop:placeholder="24.50"></anvil-component>
+      </div>
+    </div>
+    <anvil-component type="Label" name="msg" prop:role='["msg-error"]' prop:visible="false"></anvil-component>
+    <div class="ui-row end">
+      <anvil-component type="Button" name="cancel_button" prop:text="Cancel" prop:role='["btn", "btn-ghost"]'></anvil-component>
+      <anvil-component type="Button" name="save_button" prop:text="Add it" prop:role='["btn", "btn-primary", "ic-plus"]'></anvil-component>
+    </div>
+  </div>
+</div>

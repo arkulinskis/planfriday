@@ -18,6 +18,53 @@ from . import DemoData, Guests, Weather
 STYLES = ("potluck", "hostcooks", "byob")
 COVERS = ("classic", "soup", "pancakes", "dumplings", "tacos", "fondue", "pizza", "roast", "salad", "pie", "wine", "bbq", "cake")
 MAX_SLOTS, MAX_CATS, MAX_PARTIES = 14, 14, 200
+# When each part of the day starts (same as PARTS in client_code/pf.py): a slot's start, for the "answers by" check.
+PART_START = {"brunch": "10:30", "lunch": "12:30", "afternoon": "15:00", "dinner": "19:00", "late": "21:30"}
+CURRENCIES = ("$", "€", "£")
+EXTRAS = ("answer_by", "money")  # newer columns: saved on their own, so the app works before the schema is accepted
+
+
+def slot_start(key):
+    """'2026-11-21|dinner' -> '2026-11-21 19:00' (the host's local time, comparable as text)."""
+    day, part = key.split("|", 1)
+    return day + " " + PART_START.get(part, "19:00")
+
+
+def clean_answer_by(value, slots):
+    """The optional "answers by" time, "YYYY-MM-DD|HH:MM" in the host's local time (guests are assumed to be in the
+    same time zone), or None. Dropped when it doesn't parse or comes after the party's last slot."""
+    if not isinstance(value, str) or not re.match(r"^\d{4}-\d{2}-\d{2}\|([01]\d|2[0-3]):[0-5]\d$", value):
+        return None
+    day, hm = value.split("|")
+    try:
+        dt.date.fromisoformat(day)
+    except ValueError:
+        return None
+    if slots and day + " " + hm > max(slot_start(k) for k in slots):
+        return None
+    return value
+
+
+def clean_money(m):
+    """(money, error) for the suggested chip-in: {amount, currency, note} or None when no amount was given."""
+    if not isinstance(m, dict) or m.get("amount") in (None, ""):
+        return None, None
+    try:
+        amount = round(float(m.get("amount")), 2)
+    except (TypeError, ValueError):
+        return None, "The chip-in should be a number, like 15 (or leave it empty)."
+    if not 1 <= amount <= 1000:
+        return None, "A chip-in from 1 to 1000, please (or leave it empty)."
+    cur = m.get("currency") if m.get("currency") in CURRENCIES else "$"
+    return {"amount": amount, "currency": cur, "note": C.text(m.get("note"), 60)}, None
+
+
+def _save_extras(p, extras):
+    """Write answer_by / money (columns added 2026-11-20). Returns a note when they couldn't be saved yet."""
+    missed = [k for k, v in extras.items() if not C.set_col(p, k, v) and v]
+    if missed:
+        return "Saved. The deadline and chip-in switch on after a quick app update, so they're not on the page yet."
+    return None
 
 
 def clean_slots(slots):
@@ -76,12 +123,21 @@ def _read(data):
         cap = None
     if cap is not None and not 2 <= cap <= 100:
         return None, "A table for 2 to 100 people, please (or leave it empty for no limit)."
+    money, problem = clean_money(data.get("money"))
+    if problem:
+        return None, problem
     return {"title": title, "blurb": C.text(data.get("blurb"), 1000, multiline=True),
             "location": C.text(data.get("location"), 120),
             "style": data.get("style") if data.get("style") in STYLES else "potluck",
             "cover": data.get("cover") if data.get("cover") in COVERS else "classic",
             "cap": cap, "slots": slots, "categories": cats, "wanted": wanted, "outdoors": bool(data.get("outdoors")),
-            "wx_query": C.text(data.get("wx_place"), 80)}, None
+            "wx_query": C.text(data.get("wx_place"), 80),
+            "answer_by": clean_answer_by(data.get("answer_by"), slots), "money": money}, None
+
+
+def _split(f):
+    """Take the newer columns out of the form fields (they're saved separately by _save_extras)."""
+    return {k: f.pop(k) for k in EXTRAS if k in f}
 
 
 def _place(f, p=None):
@@ -137,6 +193,13 @@ def _host_row(p):
 
 
 def delete_party(p):
+    kitty = C.table("kitty")
+    if kitty is not None:
+        try:
+            for r in kitty.search(party=p):
+                r.delete()
+        except Exception:
+            pass  # the kitty table isn't in the live database yet
     for t in (app_tables.dishes, app_tables.comments, app_tables.guests):
         for r in t.search(party=p):
             r.delete()
@@ -212,8 +275,10 @@ def create_party(data):
     f, problem, note = _place(f)
     if problem:
         return C.fail(problem)
+    extras = _split(f)
     p = app_tables.parties.add_row(host=me, token=_new_token(), catalog_no=_catalog_no(), status="open",
                                    chosen=None, chosen_time=None, created=C.now(), updated=C.now(), is_demo=False, **f)
+    note = note or _save_extras(p, extras)
     _host_row(p)
     return C.ok(id=p.get_id(), token=p["token"], note=note)
 
@@ -231,7 +296,9 @@ def update_party(party_id, data):
         return C.fail(problem)
     if p["chosen"] and p["chosen"] not in f["slots"]:
         f["chosen"], f["chosen_time"] = None, None
+    extras = _split(f)
     p.update(updated=C.now(), **f)
+    note = note or _save_extras(p, extras)
     return C.ok(id=p.get_id(), token=p["token"], note=note)
 
 
@@ -302,6 +369,15 @@ def duplicate_party(party_id):
                                    categories=list(src["categories"] or []), wanted=dict(src["wanted"] or {}),
                                    wx_place=src["wx_place"], wx_lat=src["wx_lat"], wx_lon=src["wx_lon"], outdoors=src["outdoors"],
                                    created=C.now(), updated=C.now(), is_demo=False)
+    # the chip-in comes along; the "answers by" time moves with the days
+    by, extras = C.col(src, "answer_by"), {"money": C.col(src, "money")}
+    if by and "|" in by:
+        try:
+            day = (dt.date.fromisoformat(by.split("|")[0]) + dt.timedelta(weeks=weeks)).isoformat()
+            extras["answer_by"] = clean_answer_by(day + "|" + by.split("|")[1], moved)
+        except ValueError:
+            pass
+    _save_extras(p, {k: v for k, v in extras.items() if v})
     _host_row(p)
     return C.ok(id=p.get_id(), token=p["token"])
 

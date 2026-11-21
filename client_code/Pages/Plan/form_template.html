@@ -82,6 +82,20 @@
               </label>
             </div>
             <div class="pl-two">
+              <label class="ui-field"><span>Answers by <em>(optional)</em></span>
+                <anvil-component type="DropDown" name="due_box"></anvil-component>
+                <span class="pl-hint" anvil:dom-node="due_hint">A soft deadline. Guests see a countdown, and late answers still count.</span>
+              </label>
+              <div class="ui-field"><span class="pl-chip-l">Suggested chip-in <em>(optional, per person)</em></span>
+                <div class="ui-row pl-chip">
+                  <anvil-component type="DropDown" name="cur_box" prop:role='["pl-cur"]'></anvil-component>
+                  <anvil-component type="TextBox" name="chip_box" prop:type="number" prop:placeholder="15"></anvil-component>
+                </div>
+                <anvil-component type="TextBox" name="chip_note_box" prop:placeholder="for the roast and wine" prop:role='["pl-chipnote"]'></anvil-component>
+                <span class="pl-hint">Shown on the invitation, so nobody gets a surprise bill after dinner.</span>
+              </div>
+            </div>
+            <div class="pl-two">
               <div class="ui-field"><label class="pl-town-l" anvil:dom-node="town_label">Town for the weather check <em>(optional)</em></label>
                 <div class="ui-row pl-town">
                   <anvil-component type="TextBox" name="town_box" prop:placeholder="Montréal"></anvil-component>

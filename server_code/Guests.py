@@ -7,6 +7,11 @@ so the party follows them to any device. The host has a guest row too (created w
 
 Sample parties (is_demo) can be looked at but not changed.
 Every reply that changes something returns the whole page again (view), so the page is one call per action.
+
+The kitty (2026-11-20): anyone on the guest list adds what they spent ("Wine 30"); kitty_math splits the total
+fairly by heads (a guest's +1s count in their share) and works out the fewest payments to settle up. Plan Friday only
+does the maths: it never handles money or payment links. The kitty table is new, so view() returns kitty None (the
+section stays hidden) until the live database has it.
 """
 import hashlib
 import re
@@ -63,6 +68,8 @@ def dish_tags(name, note, tags):
     return [t for t in TAGS if t in out and t not in drop]
 EXTRA = "Something else"          # a menu section every party has, for whatever doesn't fit
 MAX_GUESTS, MAX_DISHES, MAX_COMMENTS = 60, 150, 400
+MAX_KITTY, KITTY_MAX_AMOUNT = 100, 5000  # rows per party; one "I spent" line at most 5000 (dollars, euros, pounds)
+CURRENCIES = ("$", "€", "£")
 SAMPLE = "This is a sample party, so it can't be changed. Start your own party to try it out!"
 CLOSED = "The host has closed RSVPs for this party."
 
@@ -144,6 +151,21 @@ def stats(p, guests, dishes):
             "filled": filled, "wanted_total": sum(m["wanted"] for m in menu.values()), "dishes": len(dishes)}
 
 
+def money_of(p):
+    """The party's suggested chip-in {amount, currency, note}, or None (also while the column is missing)."""
+    m = C.col(p, "money")
+    if not isinstance(m, dict):
+        return None
+    try:
+        amount = round(float(m.get("amount")), 2)
+    except (TypeError, ValueError):
+        return None
+    if amount <= 0:
+        return None
+    return {"amount": amount, "currency": m.get("currency") if m.get("currency") in CURRENCIES else "$",
+            "note": str(m.get("note") or "")[:60]}
+
+
 def party_dict(p):
     return {"id": p.get_id(), "token": p["token"], "catalog_no": p["catalog_no"], "title": p["title"],
             "blurb": p["blurb"] or "", "location": p["location"] or "", "style": p["style"] or "potluck",
@@ -151,6 +173,7 @@ def party_dict(p):
             "chosen_time": p["chosen_time"], "categories": categories(p), "wanted": dict(p["wanted"] or {}),
             "status": p["status"] or "open", "host_name": C.name_of(p["host"]), "demo": bool(p["is_demo"]),
             "outdoors": bool(p["outdoors"]), "wx_place": p["wx_place"],
+            "answer_by": C.col(p, "answer_by"), "money": money_of(p),
             "created": C.iso(p["created"]), "updated": C.iso(p["updated"])}
 
 
@@ -190,15 +213,120 @@ def view(p, g):
                       "can_remove": (g is not None and c["guest"] == g) or is_host or admin} for c in comments],
         "stats": stats(p, guests, dishes),
         "weather": Weather.for_party(p),
+        "kitty": kitty_view(p, g, guests, is_host, admin),
     }
 
 
 def delete_guest(g):
+    kitty = C.table("kitty")
+    if kitty is not None:
+        try:
+            for r in list(kitty.search(guest=g)) + list(kitty.search(to_guest=g)):
+                r.delete()
+        except Exception:
+            pass  # the kitty table isn't in the live database yet
     for d in app_tables.dishes.search(guest=g):
         d.delete()
     for c in app_tables.comments.search(guest=g):
         c.delete()
     g.delete()
+
+
+# ----------------------------------------------------------------------------------------------- the kitty
+def _cents(amount):
+    try:
+        return int(round(float(amount or 0) * 100))
+    except (TypeError, ValueError):
+        return 0
+
+
+def kitty_math(people, rows):
+    """A fair split and the fewest payments to settle it, all in whole cents.
+
+    people: [{id, name, rsvp, plus}]. Everyone who said yes pays a share of the total: 1 + their extra people.
+    rows: [{kind: "spent" | "paid", by: guest id, to: guest id (paid only), cents}]. A spender who isn't coming is
+    still paid back. A "paid" row is money that already went from `by` to `to`.
+    Each share is rounded to whole cents so the shares add up to the total exactly (largest remainder), so the
+    balances always add up to zero and the transfers settle everyone to the cent.
+    Returns {total, heads, balances: [{id, name, spent, share, balance}], transfers: [{from_id, from, to_id, to, cents}]}
+    (balance > 0: is owed money; < 0: owes money)."""
+    names = {x["id"]: x["name"] for x in people}
+    shares = {x["id"]: 1 + int(x.get("plus") or 0) for x in people if x.get("rsvp") == "yes"}
+    heads = sum(shares.values())
+    total = sum(r["cents"] for r in rows if r["kind"] == "spent" and r.get("by"))
+    bal, spent, share = {}, {}, {}
+    for r in rows:
+        by = r.get("by")
+        if not by:
+            continue
+        if r["kind"] == "spent":
+            spent[by] = spent.get(by, 0) + r["cents"]
+            bal[by] = bal.get(by, 0) + r["cents"]
+        elif r["kind"] == "paid" and r.get("to"):
+            bal[by] = bal.get(by, 0) + r["cents"]
+            bal[r["to"]] = bal.get(r["to"], 0) - r["cents"]
+    if heads and total:
+        exact = {i: total * s for i, s in shares.items()}  # each share = exact / heads cents
+        share = {i: e // heads for i, e in exact.items()}
+        left = total - sum(share.values())
+        for i in sorted(shares, key=lambda i: (-(exact[i] % heads), str(names.get(i, "")), str(i)))[:left]:
+            share[i] += 1
+        for i, c in share.items():
+            bal[i] = bal.get(i, 0) - c
+    cred = {i: c for i, c in bal.items() if c > 0}
+    debt = {i: -c for i, c in bal.items() if c < 0}
+    transfers = []
+    while cred and debt:  # the biggest debtor pays the biggest creditor, again and again
+        ci = max(cred, key=lambda i: (cred[i], str(i)))
+        di = max(debt, key=lambda i: (debt[i], str(i)))
+        amt = min(cred[ci], debt[di])
+        transfers.append({"from_id": di, "from": names.get(di, "A guest"), "to_id": ci, "to": names.get(ci, "A guest"),
+                          "cents": amt})
+        cred[ci] -= amt
+        debt[di] -= amt
+        if not cred[ci]:
+            del cred[ci]
+        if not debt[di]:
+            del debt[di]
+    ids = [x["id"] for x in people if x["id"] in bal or x["id"] in shares]
+    balances = [{"id": i, "name": names.get(i, "A guest"), "spent": spent.get(i, 0), "share": share.get(i, 0),
+                 "balance": bal.get(i, 0), "heads": shares.get(i, 0)} for i in ids]
+    return {"total": total, "heads": heads, "balances": balances, "transfers": transfers}
+
+
+def kitty_view(p, g, guests, is_host, admin):
+    """The kitty section of the party page, or None while the live database has no kitty table."""
+    kitty = C.table("kitty")
+    if kitty is None:
+        return None
+    try:
+        rows = _by_created(kitty.search(party=p))
+    except Exception:
+        return None
+    names = {x.get_id(): x["name"] for x in guests}
+    my_id = g.get_id() if g is not None else None
+    math_rows, out = [], []
+    for r in rows:
+        by = r["guest"].get_id() if r["guest"] else None
+        to = r["to_guest"].get_id() if r["to_guest"] else None
+        cents = _cents(r["amount"])
+        math_rows.append({"kind": r["kind"], "by": by, "to": to, "cents": cents})
+        mine = my_id is not None and (by == my_id or (r["kind"] == "paid" and to == my_id))
+        out.append({"id": r.get_id(), "kind": r["kind"], "by_id": by, "by": names.get(by, "A guest"), "to_id": to,
+                    "to": names.get(to, "") if to else "", "what": r["what"] or "", "cents": cents,
+                    "created": C.iso(r["created"]), "can_remove": mine or is_host or admin})
+    people = [{"id": x.get_id(), "name": x["name"], "rsvp": x["rsvp"], "plus": int(x["plus"] or 0)} for x in guests]
+    m = kitty_math(people, math_rows)
+    m["rows"] = out
+    return m
+
+
+def _kitty_table():
+    """(kitty table, error reply)."""
+    kitty = C.table("kitty")
+    if kitty is None:
+        return None, C.fail("The kitty switches on after the next app update. Try again later!")
+    return kitty, None
 
 
 def _load(token, secret, need_guest=True):
@@ -419,4 +547,79 @@ def comment_remove(token, secret, comment_id):
     if not ((g is not None and c["guest"] == g) or (me is not None and me == p["host"]) or C.is_admin(me)):
         return C.fail("You can only delete your own comments.")
     c.delete()
+    return C.ok(view=view(p, g))
+
+
+@anvil.server.callable
+def kitty_add(token, secret, what, amount):
+    """"I spent ...": something you paid for the party (the wine, the roast), to be shared out fairly."""
+    p, g, err = _load(token, secret)
+    if err:
+        return err
+    kitty, err = _kitty_table()
+    if err:
+        return err
+    what = C.text(what, 60)
+    if not what:
+        return C.fail("What was it for? The wine, the roast...")
+    try:
+        amount = round(float(amount), 2)
+    except (TypeError, ValueError):
+        return C.fail("How much was it? Type a number, like 24.50.")
+    if not 0.01 <= amount <= KITTY_MAX_AMOUNT:
+        return C.fail("An amount from 0.01 to %d, please." % KITTY_MAX_AMOUNT)
+    if C.rate_limited("kitty_add", 30, 3600):
+        return C.fail("That's a lot of shopping in one hour. Please try again later.")
+    if len(kitty.search(party=p)) >= MAX_KITTY:
+        return C.fail("This kitty is full (%d lines). Time to settle up!" % MAX_KITTY)
+    kitty.add_row(party=p, guest=g, kind="spent", what=what, amount=amount, to_guest=None, created=C.now(), is_demo=False)
+    _touch(p)
+    return C.ok(view=view(p, g))
+
+
+@anvil.server.callable
+def kitty_remove(token, secret, row_id):
+    """Take a line out of the kitty: your own (a payment you made or got), or any line for the host or an admin."""
+    p, g, err = _load(token, secret, need_guest=False)
+    if err:
+        return err
+    kitty, err = _kitty_table()
+    if err:
+        return err
+    r = C.row_by_id(kitty, row_id)
+    if r is None or r["party"] != p:
+        return C.ok(view=view(p, g))
+    me = C.me()
+    mine = g is not None and (r["guest"] == g or (r["kind"] == "paid" and r["to_guest"] == g))
+    if not (mine or (me is not None and me == p["host"]) or C.is_admin(me)):
+        return C.fail("Only the person who added it (or the host) can take it out.")
+    r.delete()
+    _touch(p)
+    return C.ok(view=view(p, g))
+
+
+@anvil.server.callable
+def kitty_paid(token, secret, from_id, to_id, amount):
+    """Mark a settle-up payment as done ("Jo -> Ana $16"). The payer, the person paid or the host may do it, and it has
+    to be one of the payments the page shows right now (so a stale page can't mark the wrong amount)."""
+    p, g, err = _load(token, secret)
+    if err:
+        return err
+    kitty, err = _kitty_table()
+    if err:
+        return err
+    me = C.me()
+    if g.get_id() not in (from_id, to_id) and not (me is not None and me == p["host"]):
+        return C.fail("Only the two people in this payment (or the host) can mark it as paid.")
+    guests = list(app_tables.guests.search(party=p))
+    k = kitty_view(p, g, guests, False, False) or {"transfers": []}
+    cents = _cents(amount)
+    if not any(t["from_id"] == from_id and t["to_id"] == to_id and t["cents"] == cents for t in k["transfers"]):
+        return C.fail("That payment has changed since the page loaded. Have another look.")
+    payer, payee = C.row_by_id(app_tables.guests, from_id), C.row_by_id(app_tables.guests, to_id)
+    if payer is None or payee is None:
+        return C.fail("That payment has changed since the page loaded. Have another look.")
+    kitty.add_row(party=p, guest=payer, kind="paid", what="Paid back", amount=cents / 100.0, to_guest=payee,
+                  created=C.now(), is_demo=False)
+    _touch(p)
     return C.ok(view=view(p, g))

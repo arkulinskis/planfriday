@@ -99,6 +99,34 @@ def rate_limited(key, limit, seconds):
     return False
 
 
+# New tables and columns reach the live database only when the user accepts Anvil's Schema Mismatch alert. Until then
+# these keep the app working: a missing table reads as None, a missing column as the default, and writes are skipped.
+def table(name):
+    """An app table, or None while the live database doesn't have it yet."""
+    try:
+        return getattr(app_tables, name)
+    except Exception:
+        return None
+
+
+def col(row, name, default=None):
+    """A column that may not exist yet in the live database (the default then, and for empty values)."""
+    try:
+        v = row[name]
+    except Exception:
+        return default
+    return default if v is None else v
+
+
+def set_col(row, name, value):
+    """Write a column that may not exist yet in the live database. True if it was saved."""
+    try:
+        row[name] = value
+        return True
+    except Exception:
+        return False
+
+
 def get_setting(key, default=None):
     row = app_tables.app_settings.get(key=key)
     return default if row is None else row["value"]

@@ -363,7 +363,8 @@ if "legal_server" in M:
 # A callable that changes data without require_user / a C.require_* check is a security hole. List the public ones here.
 PUBLIC = {"log_client_error", "session_ping", "get_me", "submit_feedback", "legal_state", "legal_accept",
           # the party link works without an account (Guests.py checks the link and the guest's secret)
-          "party_view", "guest_join", "guest_save", "guest_forget", "dish_add", "dish_remove", "comment_add", "comment_remove"}
+          "party_view", "guest_join", "guest_save", "guest_forget", "dish_add", "dish_remove", "comment_add", "comment_remove",
+          "kitty_add", "kitty_remove", "kitty_paid"}
 for name, (f, need) in sorted(anvil.server.CALLABLES.items()):
     if name in PUBLIC:
         continue

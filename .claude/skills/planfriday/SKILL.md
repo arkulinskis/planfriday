@@ -119,6 +119,31 @@ tools/                     check.py, assets.py, build_icons.py, make_icons.py, u
   (rendered, desktop + phone, inside ui_test.py; add new pages to its PUBLIC/MEMBER). Deliberate exceptions:
   `design-ok: <rule>` comment on the line.
 
+## Party link, nudge kit and kitty (2026-11-20)
+
+- **The link is `/p/<token>`** (`pf.party_url`): `server_code/Preview.py` (`anvil.server.route("/p/:token")`, behind the
+  same `ROUTE` guard as seo_routes.py) answers with the party's Open Graph tags and `location.replace('/#p/<token>')`.
+  og:url must stay the `/p/` address (a `#` URL makes WhatsApp/Facebook show the generic card); no meta refresh (bots
+  may follow it to the home page); `noindex` meta + `X-Robots-Tag`; never disallow `/p/` in robots.txt. The card shows
+  only invitation facts (title, host's first name, days or "It's on", head count, menu gaps, chip-in, deadline): never
+  guest names, the place or emails. Pictures: `theme/assets/covers/<cover>.png`, 1200x630, made by
+  `python -I tools/make_covers.py` from pf.js's PF.art (re-run after changing or adding a picture). The local App
+  Server 1.18 may not have `anvil.server.route`, so `/p/` is checked on the live site (`curl https://planfriday.com/p/sample`).
+- **Newer columns are guarded**: `parties.answer_by` ("YYYY-MM-DD|HH:MM", host's local time; guests assumed in the same
+  zone) and `parties.money` ({amount, currency $/€/£, note}) are read with `C.col` and written with `C.set_col` after
+  the main add_row/update (`Parties._split` + `_save_extras`); the new `kitty` table through `C.table("kitty")`
+  (None = section hidden). So a push works before the user accepts the Schema Mismatch. Do the same for future columns.
+- **Nudge kit** (`Pages/Party._nudge`, host only): lists from `pf.nudge_lists(V)`, message from `pf.nudge_text(V, mode)`
+  with mode `ask` / `late` (deadline passed, `pf.deadline`) / `on` (locked). The host's edits survive the 30 s refresh
+  until the mode changes. `_lock` opens it on "It's on!". The app sends nothing itself.
+- **Kitty**: `Guests.kitty_math(people, rows)` works in whole cents; shares = 1 + plus for "yes" guests, largest-remainder
+  rounding so shares add up to the total, then the biggest debtor pays the biggest creditor until all are zero.
+  Callables `kitty_add` / `kitty_remove` / `kitty_paid` (guest secret like dish_add; listed in PUBLIC in test_server.py).
+  `kitty_paid` only accepts a transfer the page currently shows and adds a `paid` row. `delete_guest` / `delete_party`
+  / DemoData remove kitty rows. Plan Friday never handles money or payment links (the user's rule).
+- **Demo**: Soup Night has 3 look-only kitty lines (6 heads, $12 each), the brunch an $8 chip-in, the dumplings a
+  Friday 6 pm deadline. `DemoData.version()` reloads the samples when the content changes or the kitty table appears.
+
 ## Recipes
 
 - **New table or column:** `db_schema` in anvil.yaml (same shape as the existing tables, `client: none`), then add it

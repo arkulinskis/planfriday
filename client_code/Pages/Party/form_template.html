@@ -30,6 +30,11 @@
               <span anvil:name="meta_out"><i class="ic ic-sun"></i>Outdoors</span>
             </div>
             <anvil-component type="Label" name="blurb" prop:role='["pt-blurb"]'></anvil-component>
+            <div class="pt-chipin" anvil:name="chip_part">
+              <span class="pf-label">Suggested chip-in</span>
+              <b class="amt" anvil:dom-node="chip_amt"></b><span class="pf-script each">each</span>
+              <span class="for" anvil:dom-node="chip_for"></span>
+            </div>
 
             <div class="pt-when on" anvil:name="when_on">
               <div class="pf-burst red sm" aria-hidden="true"><span><b>It's</b>on!</span></div>
@@ -90,11 +95,34 @@
             <anvil-component type="Button" name="dup_button" prop:text="Run it again" prop:role='["btn", "btn-sm", "ic-copy"]'></anvil-component>
             <anvil-component type="Button" name="delete_button" prop:text="Delete" prop:role='["btn", "btn-sm", "btn-danger", "ic-trash"]'></anvil-component>
           </div>
+          <div class="pt-nudge-bar" anvil:name="nudge_bar">
+            <anvil-component type="Button" name="nudge_button" prop:text="Nudge the group" prop:role='["btn", "btn-sm", "ic-bell"]'></anvil-component>
+            <span class="small muted" anvil:dom-node="nudge_hint"></span>
+          </div>
+          <div class="pt-nudge" anvil:name="nudge_part">
+            <div class="pt-nudge-top">
+              <h3 class="pt-nudge-h">Nudge the group</h3>
+              <span class="pf-stamp navy pt-nudge-mode" anvil:dom-node="nudge_mode"></span>
+            </div>
+            <anvil-component type="RepeatingPanel" name="nudge_panel" prop:item_template="Plan_Friday.Items.LeaderRow" prop:role='["pt-nudge-list"]'></anvil-component>
+            <label class="ui-field"><span>Your message <em>(change anything you like)</em></span>
+              <anvil-component type="TextArea" name="nudge_box" prop:height="132" prop:role='["pt-nudge-msg"]'></anvil-component>
+            </label>
+            <div class="ways">
+              <anvil-component type="Button" name="nudge_copy" prop:text="Copy" prop:role='["btn", "btn-primary", "btn-sm", "ic-copy"]'></anvil-component>
+              <a class="ui-btn sm" href="#" target="_blank" rel="noopener" anvil:dom-node="nudge_wa"><i class="ic ic-chat"></i>WhatsApp</a>
+              <a class="ui-btn sm" href="#" anvil:dom-node="nudge_sms"><i class="ic ic-phone"></i>Text</a>
+              <anvil-component type="Button" name="nudge_share" prop:text="Share" prop:role='["btn", "btn-sm", "ic-share"]'></anvil-component>
+              <anvil-component type="Button" name="nudge_reset" prop:text="Start over" prop:role='["link-btn"]'></anvil-component>
+            </div>
+            <p class="small muted pt-nudge-note">Plan Friday doesn't send anything itself: paste it into your group chat.</p>
+          </div>
         </section>
 
         <section class="pf-coupon pt-slip" anvil:name="join_slip">
           <span class="pf-scissors"><i class="ic ic-scissors"></i></span>
           <h2>Are you coming?</h2>
+          <span class="pf-stamp navy pt-due" anvil:name="due_slip"><span anvil:dom-node="due_slip_t"></span></span>
           <p class="muted">Your order slip, no account needed: put your name down, then tick the days you're free and pick something to bring.</p>
           <anvil-component type="Label" name="blocked_note" prop:role='["msg-note", "pt-blocked"]'></anvil-component>
           <div class="pt-join" anvil:name="join_form">
@@ -146,6 +174,7 @@
           <div>
             <section class="pt-sec">
               <div class="pf-sec"><h2>When are you free?</h2><span class="pf-label" anvil:dom-node="when_hint"></span></div>
+              <span class="pf-stamp navy pt-due pt-due-when" anvil:name="due_when"><span anvil:dom-node="due_when_t"></span></span>
               <anvil-component type="RepeatingPanel" name="slots_panel" prop:item_template="Plan_Friday.Items.SlotRow" prop:role='["pt-slots"]'></anvil-component>
             </section>
 
@@ -157,6 +186,36 @@
                 <div class="pf-meter" role="progressbar" aria-label="Menu filled" aria-valuemin="0" aria-valuemax="100" anvil:dom-node="meter"><i anvil:dom-node="meter_bar"></i></div>
               </div>
               <anvil-component type="RepeatingPanel" name="cats_panel" prop:item_template="Plan_Friday.Items.MenuCat"></anvil-component>
+            </section>
+
+            <section class="pt-sec pt-kitty" anvil:name="kitty_sec">
+              <div class="pf-sec"><h2>The kitty</h2><span class="pf-label" anvil:dom-node="kitty_count"></span></div>
+              <div class="pt-kitty-box">
+                <p class="pt-kitty-chip" anvil:name="kitty_chip"><i class="ic ic-ticket"></i><span anvil:dom-node="kitty_chip_t"></span></p>
+                <div class="pt-kitty-sum" anvil:name="kitty_sum">
+                  <div class="pt-kitty-big" anvil:dom-node="kitty_big"></div>
+                  <div class="small muted" anvil:dom-node="kitty_small"></div>
+                </div>
+                <div class="ui-empty pt-kitty-empty" anvil:name="kitty_empty"><i class="ic ic-pot"></i>
+                  <p>Nothing in the kitty yet. Bought the wine or the roast? Put it here and Plan Friday works out a fair split.</p></div>
+                <anvil-component type="RepeatingPanel" name="kitty_panel" prop:item_template="Plan_Friday.Items.KittyRow" prop:role='["pt-krows"]'></anvil-component>
+                <div class="ui-row pt-kitty-add" anvil:name="spend_part">
+                  <anvil-component type="Button" name="spend_button" prop:text="I spent…" prop:role='["btn", "btn-primary", "btn-sm", "ic-plus"]'></anvil-component>
+                  <span class="small muted" anvil:dom-node="spend_hint"></span>
+                </div>
+                <div class="pt-kitty-cols" anvil:name="kitty_more">
+                  <div>
+                    <h3 class="pt-kitty-h">Where everyone stands</h3>
+                    <anvil-component type="RepeatingPanel" name="kitty_bal_panel" prop:item_template="Plan_Friday.Items.LeaderRow" prop:role='["pt-kbal"]'></anvil-component>
+                  </div>
+                  <div>
+                    <h3 class="pt-kitty-h">Settle up</h3>
+                    <anvil-component type="RepeatingPanel" name="transfers_panel" prop:item_template="Plan_Friday.Items.TransferRow" prop:role='["pt-trows"]'></anvil-component>
+                    <p class="muted small pt-square" anvil:name="kitty_square">Nothing to settle. Everyone's square.</p>
+                  </div>
+                </div>
+                <p class="small muted pt-kitty-note">Plan Friday only does the maths and never touches the money: pay each other however you usually do.</p>
+              </div>
             </section>
 
             <section class="pt-sec pt-book">

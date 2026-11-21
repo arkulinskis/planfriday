@@ -245,13 +245,29 @@ def tag_label(k):
 
 # ------------------------------------------------------------------ sharing and calendars
 def party_url(token):
+    """The link hosts send: <site>/p/<token>. That address answers chat apps with the party's own preview card
+    (server_code/Preview.py) and sends browsers on to #p/<token>. Old #p/ links still work."""
     loc = window.location
-    return str(loc.origin) + str(loc.pathname) + "#p/" + str(window.encodeURIComponent(token))
+    path = str(loc.pathname or "/")
+    if path.startswith("/p/"):
+        path = "/"
+    return str(loc.origin) + path.rstrip("/") + "/p/" + str(window.encodeURIComponent(token))
+
+
+def host_first(p):
+    return (p.get("host_name") or "the host").split(" ")[0]
 
 
 def invite_text(p):
-    host = (p.get("host_name") or "the host").split(" ")[0]
-    return "You're invited to %s! Tell %s which day suits you and what you'll bring: %s" % (p["title"], host, party_url(p["token"]))
+    """The invitation for chats, texts and emails. Money is mentioned up front (the etiquette: in the invitation,
+    never after dinner), and the deadline if there is one. The link goes last, so share sheets can drop it."""
+    by = answer_by_label(p)
+    text = "You're invited to %s! Tell %s which day suits you and what you'll bring%s." % (
+        p["title"], host_first(p), (" by " + by) if by and not p.get("chosen") else "")
+    chip = chip_in_text(p)
+    if chip:
+        text += " " + chip + "."
+    return text + " " + party_url(p["token"])
 
 
 def _times(p):
@@ -302,6 +318,215 @@ def can_share():
 
 def share(title, text, url):
     window.PF.share(title, text, url)
+
+
+# ------------------------------------------------------------------ money: the chip-in and the kitty
+CURRENCIES = ["$", "€", "£"]
+_EURO = ("AT", "BE", "CY", "DE", "EE", "ES", "FI", "FR", "GR", "HR", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PT", "SI", "SK")
+
+
+def guess_currency():
+    """$ unless the browser's language says Britain (£) or a euro country (€)."""
+    try:
+        lang = str(window.navigator.language or "")
+    except Exception:
+        lang = ""
+    region = lang.split("-")[-1].upper() if "-" in lang else ""
+    return "£" if region == "GB" else "€" if region in _EURO else "$"
+
+
+def cash(amount, cur="$"):
+    """15 -> '$15', 12.5 -> '$12.50' (always positive; say "owes" or "is owed" around it)."""
+    try:
+        cents = abs(int(round(float(amount or 0) * 100)))
+    except (TypeError, ValueError):
+        cents = 0
+    return (cur or "$") + (("%d" % (cents // 100)) if cents % 100 == 0 else "%d.%02d" % (cents // 100, cents % 100))
+
+
+def cents_cash(cents, cur="$"):
+    return cash((cents or 0) / 100.0, cur)
+
+
+def currency(p):
+    m = p.get("money") or {}
+    return m.get("currency") or "$"
+
+
+def chip_in_text(p):
+    """'Suggested chip-in: $15 each, for the roast and wine' (or '')."""
+    m = p.get("money")
+    if not m or not m.get("amount"):
+        return ""
+    note = (m.get("note") or "").strip()
+    return "Suggested chip-in: %s each%s" % (cash(m["amount"], m.get("currency")), (", " + note) if note else "")
+
+
+# ------------------------------------------------------------------ the "answers by" deadline and the nudge kit
+DUE_CHOICES = [(0, "18:00"), (0, "21:00"), (1, "10:00"), (1, "12:00")]  # Fri 6 pm, Fri 9 pm, Sat 10 am, Sat noon
+
+
+def clock(hm):
+    """'18:00' -> '6 pm', '10:30' -> '10:30 am', '12:00' -> 'noon'."""
+    try:
+        h, m = int(str(hm)[:2]), int(str(hm)[3:5])
+    except (TypeError, ValueError):
+        return ""
+    if (h, m) == (12, 0):
+        return "noon"
+    return ("%d" % ((h % 12) or 12)) + ((":%02d" % m) if m else "") + (" am" if h < 12 else " pm")
+
+
+def now_key():
+    """The browser's local time as 'YYYY-MM-DD HH:MM' (comparable with slot and deadline keys)."""
+    d = anvil.js.new(window.Date)
+    return "%04d-%02d-%02d %02d:%02d" % (int(d.getFullYear()), int(d.getMonth()) + 1, int(d.getDate()), int(d.getHours()),
+                                         int(d.getMinutes()))
+
+
+def due_key(day, hm):
+    return iso(day) + "|" + hm
+
+
+def due_label(key, short=False):
+    """'2026-11-20|18:00' -> 'Friday 6 pm' (or 'Fri 6 pm')."""
+    try:
+        d, hm = parse(str(key).split("|")[0]), str(key).split("|")[1]
+    except Exception:
+        return ""
+    return day_name(d, short) + " " + clock(hm)
+
+
+def answer_by_label(p):
+    return due_label(p.get("answer_by")) if p.get("answer_by") else ""
+
+
+def deadline(p):
+    """The guests' stamp: None (no deadline, or the day is locked in), else {label, over, left}:
+    'Answer by Friday 6 pm · 3 h left', or over = True once it has passed (answers are still taken)."""
+    by = p.get("answer_by")
+    if not by or p.get("chosen") or "|" not in str(by):
+        return None
+    try:
+        d, hm = parse(str(by).split("|")[0]), str(by).split("|")[1]
+        when = datetime.datetime(d.year, d.month, d.day, int(hm[:2]), int(hm[3:5]))
+        n = now_key()
+        now = datetime.datetime(int(n[:4]), int(n[5:7]), int(n[8:10]), int(n[11:13]), int(n[14:16]))
+    except Exception:
+        return None
+    delta = when - now
+    secs = delta.days * 86400 + delta.seconds
+    if secs <= 0:
+        return {"label": answer_by_label(p), "over": True, "left": ""}
+    if secs >= 2 * 86400:
+        left = "%d days left" % (secs // 86400)
+    elif secs >= 3600:
+        left = "%d h left" % (secs // 3600)
+    else:
+        left = "%d min left" % max(1, secs // 60)
+    return {"label": answer_by_label(p), "over": False, "left": left}
+
+
+def deadline_text(p):
+    d = deadline(p)
+    if not d:
+        return ""
+    if d["over"]:
+        return "Time's up: %s is choosing the day" % host_first(p)
+    return "Answer by %s · %s" % (d["label"], d["left"])
+
+
+def names_text(names):
+    """['Sam', 'Jo', 'Lou'] -> 'Sam, Jo and Lou' (and 'Sam, Jo, Lou and 3 others' for long lists)."""
+    names = [str(x) for x in names if x]
+    if len(names) > 4:
+        return "%s and %d others" % (", ".join(names[:3]), len(names) - 3)
+    if len(names) <= 1:
+        return "".join(names)
+    return ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def slot_words(key):
+    """'2026-11-21|dinner' -> 'Saturday dinner'."""
+    d, part = slot(key)
+    return day_name(d) + " " + part_label(part).lower()
+
+
+def when_short(p):
+    """The locked-in day as 'Saturday 7 pm'."""
+    d, part = slot(p["chosen"])
+    return day_name(d) + " " + clock(p.get("chosen_time") or part_time(part))
+
+
+def nudge_lists(V):
+    """Who the host might nudge: {"unticked": names who joined but ticked no day, "maybe": names still on maybe,
+    "wanted": ["1 dessert", ...] menu gaps}. The host is never on the lists."""
+    p, menu = V["party"], V["stats"]["menu"]
+    open_slots = set(p["slots"])
+    unticked, maybe = [], []
+    for gx in V["guests"]:
+        if gx.get("is_host") or gx["rsvp"] == "no":
+            continue
+        ticked = [sk for sk, sv in (gx.get("avail") or {}).items() if sk in open_slots and sv]
+        if not ticked:
+            unticked.append(gx["name"])
+        if gx["rsvp"] == "maybe":
+            maybe.append(gx["name"])
+    wanted = []
+    for cat in p["categories"]:
+        mc = menu.get(cat)
+        if mc and mc["have"] < mc["wanted"]:
+            wanted.append("%d %s" % (mc["wanted"] - mc["have"], cat.lower()))
+    return {"unticked": unticked, "maybe": maybe, "wanted": wanted}
+
+
+def nudge_mode(V):
+    """'on' once the day is locked in, 'late' after the deadline, otherwise 'ask'."""
+    p = V["party"]
+    if p.get("chosen"):
+        return "on"
+    d = deadline(p)
+    return "late" if d and d["over"] else "ask"
+
+
+def nudge_text(V, mode=None):
+    """A ready-made group-chat message that changes with the party (the host can edit it; Plan Friday sends nothing).
+    ask: who still has to tick a day, the deadline, the menu gaps. late: the best bet and a last call.
+    on: "It's on! Soup Night is Saturday 7 pm. Still need 1 dessert." Always ends with the party link."""
+    p, st = V["party"], V["stats"]
+    mode = mode or nudge_mode(V)
+    lists = nudge_lists(V)
+    title, by, best = p["title"], answer_by_label(p), st.get("best")
+    wanted = names_text(lists["wanted"])
+    lines = []
+    if mode == "on":
+        lines.append("It's on! %s is %s." % (title, when_short(p)))
+        lines.append(("Still need %s." % wanted) if wanted else "The menu is covered. See you there!")
+        if lists["maybe"]:
+            lines.append("%s: still a maybe? Let me know if you're coming." % names_text(lists["maybe"]))
+        chip = chip_in_text(p)
+        if chip:
+            lines.append(chip + ".")
+    elif mode == "late":
+        lines.append("Time's up for %s!%s" % (title, (" Best bet is %s." % slot_words(best)) if best else ""))
+        if lists["unticked"]:
+            lines.append("%s: last call, tick a day now if you can." % names_text(lists["unticked"]))
+        if wanted:
+            lines.append("Still wanted: %s." % wanted)
+    else:
+        if lists["unticked"]:
+            lines.append("%s: tick a day for %s%s, please!" % (names_text(lists["unticked"]), title, (" by " + by) if by else ""))
+        elif best:
+            lines.append("%s: thanks for ticking your days! Best bet so far is %s.%s" % (
+                title, slot_words(best), (" I'll lock it in after %s." % by) if by else ""))
+        else:
+            lines.append("%s: tick the days you're free%s!" % (title, (" by " + by) if by else ""))
+        if lists["maybe"]:
+            lines.append("Still on maybe: %s. Are you in?" % names_text(lists["maybe"]))
+        if wanted:
+            lines.append("Still wanted: %s." % wanted)
+    lines.append(party_url(p["token"]))
+    return "\n".join(lines)
 
 
 # ------------------------------------------------------------------ weather words (forecasts come from Weather.py)

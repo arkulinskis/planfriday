@@ -6,7 +6,7 @@ Friends open it with no account, put their name down, tick which weekend slot su
 Built on [Anvil](https://anvil.works).
 
 - **App repo:** github.com/arkulinskis/planfriday (branch `master`). Anvil pulls `master`.
-- **Live:** not published yet (meant for https://planfriday.com).
+- **Live:** https://planfriday.com
 
 ## What it does
 
@@ -15,9 +15,16 @@ Built on [Anvil](https://anvil.works).
 - **The Weekend Catalogue** (`#catalogue`): 13 ready-made party ideas (Soup Night Supper, Taco Saturday, Sunday Pancake Brunch,
   Dumpling Folding Party, Fondue & Fiasco...), each with an item number, a picture, serves / effort / style / best day and a
   suggested menu. Filters: cosy, brunch, hands-on, big crowd, outdoors. "Order this party" opens the party form filled in.
+- **The party link** (`/p/<token>`, since 2026-11-20): pasted into WhatsApp, iMessage, Slack or Messenger it shows the
+  party's own preview card (its catalogue drawing, "Soup Night Supper · hosted by Maya", the days or "It's on: Saturday
+  7 pm", how many are coming, what's still wanted, the chip-in), then opens the party page. No guest names, place or
+  emails on the card. Old `#p/<token>` links still work.
 - **A party page** (`#p/<token>`), the page behind the link:
-  - The party's picture, catalogue number, host, place, seats taken, the host's note, and the day once it's locked in
+  - The party's picture, catalogue number, host, place, seats taken, the host's note, the **suggested chip-in** if the
+    host set one ("$15 each, for the roast and wine", shown before anyone RSVPs), and the day once it's locked in
     ("It's on!", add to calendar as .ics or Google Calendar).
+  - **Answer by:** if the host set a deadline, a stamp in the order slip and over the slots counts down ("Answer by
+    Friday 6 pm · 3 h left"), then reads "Time's up: Ana is choosing the day" (late answers still count).
   - **Order slip:** put your name down ("Count me in" / "Maybe" / "Can't make it"). The browser remembers you (a secret key
     in local storage). Then change your RSVP, bring +0–6 people, and tick diets (vegetarian, vegan, gluten-free, dairy-free,
     nut allergy, halal). "Take me off the guest list" deletes everything you added.
@@ -32,6 +39,11 @@ Built on [Anvil](https://anvil.works).
     get a "Driest" badge on the slot least likely to rain. °C/°F switch (remembered). Forecasts come from
     [Open-Meteo](https://open-meteo.com/) (free, no key) through our server and are cached for an hour; the forecast reaches
     about 16 days ahead. Also on home cards and the order sheet.
+  - **The kitty** (under the menu): anyone on the guest list adds "I spent…" (what, how much). It shows the total and
+    the fair split ("Total $72 ÷ 6 people = $12 each"; +1s count in their guest's share; a spender who isn't coming is
+    still paid back), where everyone stands, and **Settle up**: the fewest payments ("Priya → Maya $24"), each with a
+    **Paid** button for the payer, the person paid or the host. Plan Friday only does the maths: no payments, no payment
+    links. Remove your own lines (the host can remove any).
   - **Letters to the host:** a guestbook.
   - **The guest list** (coming / maybe / can't, +1s, diets, seat meter) and **At the table** (diet counts, plus warnings such as a
     nut allergy next to a dish with nuts, or vegetarians without veggie dishes).
@@ -39,7 +51,8 @@ Built on [Anvil](https://anvil.works).
   - It refreshes itself every 30 seconds while you're not typing.
 - **Order sheet** (`#sheet/<token>`): a printable page with the day, the facts, every dish by section with tick boxes and the
   "still wanted" gaps, and the guest list.
-- **Sample parties:** `#p/sample` (Soup Night), `#p/sample-brunch` (day locked in), `#p/sample-dumplings`. They're look-only and
+- **Sample parties:** `#p/sample` (Soup Night, with three kitty lines), `#p/sample-brunch` (day locked in, an $8 chip-in),
+  `#p/sample-dumplings` (answers by Friday 6 pm). They're look-only and
   always sit on the coming weekend.
 
 **For hosts (free account):**
@@ -48,9 +61,16 @@ Built on [Anvil](https://anvil.works).
   and three daily picks from the catalogue.
 - **Host a party** (`#new`, `#new/<idea>`), an order blank in four numbered sections: name and picture (13 drawings), the slots
   (this weekend or next, Fri dinner/late, Sat brunch→late, Sun brunch→dinner), the menu (sections + how many, presets) and
-  the particulars (potluck / host cooks / bring your own, place, seat limit, note, the town for the weather check with a
-  "Check" button, and "It's outdoors", ticked for outdoor catalogue ideas). On creation the page opens with the link
+  the particulars (potluck / host cooks / bring your own, place, seat limit, an optional **Answers by** deadline (Fri 6 pm,
+  Fri 9 pm, Sat 10 am or Sat noon, only times before the first slot), an optional **suggested chip-in** ($ € £, amount,
+  what it's for), note, the town for the weather check with a "Check" button, and "It's outdoors", ticked for outdoor
+  catalogue ideas). The invitation text mentions the deadline and the chip-in. On creation the page opens with the link
   ready to copy, plus confetti.
+- **Nudge the group** (in the host's share box): who hasn't ticked a day, who's still on maybe, what's still wanted, and a
+  ready-made, editable group-chat message that follows the party ("Sam and Jo: tick a day by Friday 6 pm, please!",
+  then "Time's up! Best bet is Saturday dinner", then "It's on! Soup Night is Saturday 7 pm. Still need 1 dessert."),
+  always with the link, plus Copy / WhatsApp / Text / Share. Locking in the day opens it on the "It's on!" message.
+  Plan Friday sends nothing itself.
 - **Host tools** on the party page: lock in the day (pick a slot and a start time, confetti), change the day, close / reopen RSVPs,
   edit (`#edit/<id>`), order sheet, run it again (a copy moved to next weekend), delete, remove a guest, remove any dish or note.
   Signed-in hosts can copy a sample party into their own.
@@ -85,7 +105,7 @@ What this project uses besides its own code. Generated by `APP_MAKER/tools/libra
 
 **Built into the browser:** Web Share, localStorage, Clipboard, File downloads (Blob).
 
-**Anvil platform:** Anvil, Anvil Data Tables, Anvil JS bridge (anvil.js), Anvil Users, Anvil Google service, Anvil HTTP.
+**Anvil platform:** Anvil, Anvil Data Tables, Anvil Email, Anvil JS bridge (anvil.js), Anvil Secrets, Anvil Users, Anvil Google service, Anvil HTTP, Anvil timezones (anvil.tz).
 
 **Build and test tools (not shipped):** axe-core, Node.js, Headless Chrome (DevTools Protocol), PyYAML.
 
@@ -107,10 +127,12 @@ python -I tools/ui_test.py --stop                # stop the local App Server
 anvil.yaml      tables (db_schema), services, head_html (fonts, SEO, Prepsto, theme assets with ?v=)
 client_code/    startup.py, router.py (#addresses), state.py, auth.py, legal.py, pf.py (ideas, dates, slots, diets, weather words)
                 Layouts/Shell (masthead, footer, tab bar), Pages/ (Landing, Catalogue, Home, Plan, Party, Sheet, Auth, Profile, Admin),
-                Items/ (RepeatingPanel rows), Components/ (Art, WxChip: the SVG pictures), Dialogs/ (Bring, LockDay, Rename)
+                Items/ (RepeatingPanel rows), Components/ (Art, WxChip: the SVG pictures), Dialogs/ (Bring, LockDay, Rename, Spend)
 server_code/    common.py, Accounts.py, Feedback.py, Admin.py, DemoData.py, legal_server.py, seo_routes.py, SchemaCheck.py,
-                Parties.py (hosts), Guests.py (the party link), Weather.py (Open-Meteo look-up + forecast cache)
+                Parties.py (hosts), Guests.py (the party link + the kitty), Weather.py (Open-Meteo look-up + forecast cache),
+                Preview.py (/p/<token>: the party's own link-preview card, then on to #p/<token>)
 theme/assets/   app.css (tokens + catalogue skin + pages + role layer), pf.js (party pictures, weather icons, clipboard, confetti),
-                app-kit.js, icons.css (generated), legal-kit.js, theme.css (spinner), icon.svg + PNGs
-tools/          check.py, assets.py, build_icons.py, make_icons.py, ui_test.py + ui/ (smoke.js, a11y.js, design.js), live/, testing/
+                app-kit.js, icons.css (generated), legal-kit.js, theme.css (spinner), icon.svg + PNGs,
+                covers/<cover>.png (the 13 1200x630 link-preview cards, made by tools/make_covers.py)
+tools/          check.py, assets.py, build_icons.py, make_icons.py, make_covers.py, ui_test.py + ui/ (smoke.js, a11y.js, design.js), live/, testing/
 ```

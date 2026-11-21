@@ -1,36 +1,5 @@
 allow_embedding: false
 db_schema:
-  error_log:
-    client: none
-    columns:
-    - admin_ui: {order: 0, width: 200}
-      name: when
-      type: datetime
-    - admin_ui: {order: 1, width: 120}
-      name: source
-      type: string
-    - admin_ui: {order: 2, width: 160}
-      name: kind
-      type: string
-    - admin_ui: {order: 3, width: 300}
-      name: message
-      type: string
-    - admin_ui: {order: 4, width: 300}
-      name: traceback
-      type: string
-    - admin_ui: {order: 5, width: 200}
-      name: page
-      type: string
-    - admin_ui: {order: 6, width: 120}
-      name: session
-      type: string
-    - admin_ui: {order: 7, width: 200}
-      name: user
-      target: users
-      type: link_single
-    indexes: []
-    server: full
-    title: Error log
   app_settings:
     client: none
     columns:
@@ -133,6 +102,53 @@ db_schema:
     indexes: []
     server: full
     title: Dishes
+  error_log:
+    client: none
+    columns:
+    - admin_ui:
+        order: 0
+        width: 200
+      name: when
+      type: datetime
+    - admin_ui:
+        order: 1
+        width: 120
+      name: source
+      type: string
+    - admin_ui:
+        order: 2
+        width: 160
+      name: kind
+      type: string
+    - admin_ui:
+        order: 3
+        width: 300
+      name: message
+      type: string
+    - admin_ui:
+        order: 4
+        width: 300
+      name: traceback
+      type: string
+    - admin_ui:
+        order: 5
+        width: 200
+      name: page
+      type: string
+    - admin_ui:
+        order: 6
+        width: 120
+      name: session
+      type: string
+    - admin_ui:
+        order: 7
+        width: 200
+      name: user
+      target: users
+      type: link_single
+    indexes: []
+    server: full
+    title: Error log
   feedback:
     client: none
     columns:
@@ -248,6 +264,55 @@ db_schema:
     indexes: []
     server: full
     title: Guests
+  kitty:
+    client: none
+    columns:
+    - admin_ui:
+        order: 0
+        width: 200
+      name: party
+      target: parties
+      type: link_single
+    - admin_ui:
+        order: 1
+        width: 200
+      name: guest
+      target: guests
+      type: link_single
+    - admin_ui:
+        order: 2
+        width: 200
+      name: kind
+      type: string
+    - admin_ui:
+        order: 3
+        width: 200
+      name: what
+      type: string
+    - admin_ui:
+        order: 4
+        width: 200
+      name: amount
+      type: number
+    - admin_ui:
+        order: 5
+        width: 200
+      name: to_guest
+      target: guests
+      type: link_single
+    - admin_ui:
+        order: 6
+        width: 200
+      name: created
+      type: datetime
+    - admin_ui:
+        order: 7
+        width: 200
+      name: is_demo
+      type: bool
+    indexes: []
+    server: full
+    title: Kitty
   parties:
     client: none
     columns:
@@ -367,6 +432,16 @@ db_schema:
         width: 200
       name: weather
       type: simpleObject
+    - admin_ui:
+        order: 23
+        width: 200
+      name: answer_by
+      type: string
+    - admin_ui:
+        order: 24
+        width: 200
+      name: money
+      type: simpleObject
     indexes: []
     server: full
     title: Parties
@@ -461,13 +536,14 @@ db_schema:
     server: full
     title: Users
 metadata:
-  description: "Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they're bringing, and you lock in the best day. No guest accounts."
-  logo_img: "asset:icon-512.png"
-  title: "Plan Friday: plan a last-minute weekend dinner party"
+  description: 'Plan a last-minute weekend dinner party on Friday: send one link, guests pick the day and say what they''re
+    bringing, and you lock in the best day. No guest accounts.'
+  logo_img: asset:icon-512.png
+  title: 'Plan Friday: plan a last-minute weekend dinner party'
 name: Plan Friday
 native_deps:
   head_html: |
-    <script src="_/theme/legal-kit.js?v=3cafdec1ff"></script>
+    <script src="_/theme/legal-kit.js?v=a039ed324d"></script>
     <!-- seo:start (APP_MAKER/seo: edit seo/apps/planfriday.json and run seo.py, not here) -->
     <link rel="canonical" href="https://planfriday.com/">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -524,7 +600,7 @@ native_deps:
     <!-- Prepsto feedback panel: every "Submit feedback" link and button opens it (it is the only feedback channel). No floating button, no cookies, nothing loads until it is opened. Codes: APP_MAKER/prepsto-links.json -->
     <script src="https://prepsto.com/_/theme/widget.js" data-prepsto="s28bant" data-button="false" data-label="Submit feedback" async></script>
     <link rel="stylesheet" href="_/theme/icons.css?v=51251cc446">
-    <link rel="stylesheet" href="_/theme/app.css?v=ecc50b8e5d">
+    <link rel="stylesheet" href="_/theme/app.css?v=1f09fe35d8">
     <script src="_/theme/app-kit.js?v=08cc8d1ba1"></script>
     <script src="_/theme/pf.js?v=b2ef7b92ad"></script>
 package_name: Plan_Friday

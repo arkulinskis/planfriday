@@ -12,7 +12,8 @@ def from_idea(i):
     """The form filled in from a catalogue idea: its name, picture, menu and the slots still ahead."""
     st = {"title": "" if i["key"] == "classic" else i["name"], "blurb": "", "location": "", "style": i["style"],
           "cover": i["cover"], "cap": "", "idea": i["key"], "wx_place": pf.get("town", "") or "",
-          "outdoors": "outdoor" in i["tags"], "menu": [{"name": m, "wanted": n} for m, n in i["menu"]], "slots": {}}
+          "outdoors": "outdoor" in i["tags"], "menu": [{"name": m, "wanted": n} for m, n in i["menu"]], "slots": {},
+          "answer_by": "", "money": None}
 
     def keys(w):
         return [k for k in (pf.slot_key(pf.friday(w), d, p) for d, p in i["slots"]) if not pf.is_past(k)]
@@ -54,6 +55,14 @@ class Plan(PlanTemplate):
         for box, n in ((self.title_box, 80), (self.location_box, 120), (self.town_box, 80), (self.newcat_box, 30)):
             state.set_control_attr(box, "maxlength", n)
         state.set_control_attr(self.blurb_box, "maxlength", 1000)
+        state.set_control_attr(self.chip_note_box, "maxlength", 60)
+        state.set_control_attr(self.chip_note_box, "aria-label", "What the chip-in is for")
+        state.set_control_attr(self.chip_box, "aria-label", "Suggested chip-in per person")
+        state.set_control_attr(self.chip_box, "min", 1)
+        state.set_control_attr(self.chip_box, "max", 1000)
+        state.set_control_attr(self.chip_box, "step", "0.5")
+        self.cur_box.items = [(c, c) for c in pf.CURRENCIES]
+        state.set_control_attr(self.cur_box, "aria-label", "Currency")
         if self.editing:
             r = state.call("get_party_form", self.party_id)
             if not r:
@@ -65,7 +74,8 @@ class Plan(PlanTemplate):
                        "cap": p.get("cap") or "", "token": p["token"], "catalog_no": p.get("catalog_no"),
                        "wx_place": p.get("wx_place") or "", "outdoors": bool(p.get("outdoors")),
                        "menu": [{"name": c, "wanted": 1 if p["wanted"].get(c) is None else p["wanted"][c]} for c in p["categories"]],
-                       "slots": {k: True for k in p["slots"]}}
+                       "slots": {k: True for k in p["slots"]},
+                       "answer_by": p.get("answer_by") or "", "money": p.get("money")}
             w = 0
             if p["slots"]:
                 w = int(round((pf.friday(0, pf.slot(p["slots"][0])[0]) - pf.friday(0)).days / 7.0))
@@ -106,6 +116,10 @@ class Plan(PlanTemplate):
         self.town_box.text = st.get("wx_place") or ""
         self.outdoors_box.checked = bool(st.get("outdoors"))
         self.blurb_box.text = st["blurb"]
+        money = st.get("money") or {}
+        self.cur_box.selected_value = money.get("currency") or pf.guess_currency()
+        self.chip_box.text = money.get("amount") or None
+        self.chip_note_box.text = money.get("note") or ""
 
     def _covers(self):
         self.covers_panel.items = [{"key": k, "name": n, "on": self.st["cover"] == k} for k, n in pf.COVERS]
@@ -138,6 +152,36 @@ class Plan(PlanTemplate):
         self.also_part.visible = bool(other)
         self.also_panel.items = [{"key": k, "text": "%s, %s ✕" % (pf.slot_label(k), pf.short_date(pf.slot(k)[0])),
                                   "label": "Untick %s, %s" % (pf.slot_label(k), pf.short_date(pf.slot(k)[0])), "role": ["btn", "btn-sm"]} for k in other]
+        self._due(keys)
+
+    def _due(self, keys):
+        """The "Answers by" choices: Fri 6 pm, Fri 9 pm, Sat 10 am, Sat noon of the first slot's weekend, only the
+        ones still ahead and before the first slot starts. A saved deadline stays on the list."""
+        items = [("No deadline", "")]
+        if keys:
+            first_day, first_part = pf.slot(keys[0])
+            first_start = pf.iso(first_day) + " " + pf.part_time(first_part)
+            fri, now = pf.friday(0, first_day), pf.now_key()
+            for off, hm in pf.DUE_CHOICES:
+                key = pf.due_key(pf.add_days(fri, off), hm)
+                if now < key.replace("|", " ") < first_start:
+                    items.append((pf.due_label(key), key))
+        cur = self.st.get("answer_by") or ""
+        values = [v for lbl, v in items]
+        if cur and cur not in values:
+            items.append((pf.due_label(cur) + " (as saved)", cur))
+            values.append(cur)
+        self.due_box.items = items
+        self.due_box.selected_value = cur if cur in values else ""
+        self.st["answer_by"] = self.due_box.selected_value or ""
+        state.set_control_attr(self.due_box, "aria-label", "Answers by")
+        self.dom_nodes["due_hint"].textContent = (
+            "A soft deadline. Guests see a countdown, and late answers still count." if len(items) > 1
+            else "Tick a slot first: the deadline choices come before your first slot.")
+
+    @handle("due_box", "change")
+    def due_box_change(self, **event_args):
+        self.st["answer_by"] = self.due_box.selected_value or ""
 
     def _menu(self):
         for i, m in enumerate(self.st["menu"]):
@@ -243,9 +287,18 @@ class Plan(PlanTemplate):
         except (TypeError, ValueError):
             cap = None
         town = (self.town_box.text or "").strip()
+        chip_text = str(self.chip_box.text if self.chip_box.text is not None else "").strip()
+        money = None
+        if chip_text:
+            try:
+                money = {"amount": round(float(chip_text), 2), "currency": self.cur_box.selected_value or "$",
+                         "note": (self.chip_note_box.text or "").strip()}
+            except (TypeError, ValueError):
+                self._problem("The chip-in should be a number, like 15 (section 4).")
+                return
         data = {"title": title, "blurb": self.blurb_box.text or "", "location": self.location_box.text or "", "style": st["style"],
                 "cover": st["cover"], "cap": cap, "slots": slots, "categories": cats, "wanted": wanted, "wx_place": town,
-                "outdoors": bool(self.outdoors_box.checked)}
+                "outdoors": bool(self.outdoors_box.checked), "answer_by": st.get("answer_by") or None, "money": money}
         self.submit_button.enabled = False
         try:
             r = anvil.server.call("update_party", self.party_id, data) if self.editing else anvil.server.call("create_party", data)
